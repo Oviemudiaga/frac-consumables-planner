@@ -1,47 +1,46 @@
 """
-Pydantic models for crew and consumable inventory data.
+Pydantic models for crew and pump data.
 
-Defines:
-- Consumable: Represents a single consumable item (valve packing, seal, valve)
-  with quantity, remaining life hours, and surplus.
-- Crew: Represents a frac crew with ID, pump count, distance, and inventory list.
+This module defines the core data models:
+- Pump: A single pump with remaining life per consumable
+- Spares: Spare parts inventory for a crew
+- Crew: A fracturing crew with pumps and spares
+- CrewData: Root model containing all crews
 
-These models are used to:
-1. Parse and validate data from data/crews.json
-2. Structure inventory data passed between tools
-3. Ensure type safety across the application
+Usage:
+    from schemas.crew import Crew, CrewData, Pump, Spares
+
+    pump = Pump(pump_id=1, valve_packings_life=50, seals_life=60, plungers_life=70)
+    spares = Spares(valve_packings=10, seals=5, plungers=3)
+    crew = Crew(crew_id="A", job_duration_hours=60, pumps=[pump], spares=spares)
 """
 
 from pydantic import BaseModel, Field
 
 
-class Consumable(BaseModel):
-    """
-    Represents a consumable inventory item.
+class Pump(BaseModel):
+    """A single pump with remaining life per consumable."""
 
-    Attributes:
-        name: Type of consumable (e.g., "valve_packings", "seals", "valves")
-        quantity: Current quantity in inventory
-        remaining_life_hours: Hours of remaining useful life
-        surplus: Quantity available for borrowing to other crews
-    """
-    name: str
-    quantity: int
-    remaining_life_hours: int
-    surplus: int = 0
+    # TODO: Implement fields
+    pass
+
+
+class Spares(BaseModel):
+    """Spare parts inventory."""
+
+    # TODO: Implement fields
+    pass
 
 
 class Crew(BaseModel):
-    """
-    Represents a frac crew with inventory.
+    """A fracturing crew."""
 
-    Attributes:
-        crew_id: Unique identifier (e.g., "A", "B", "C")
-        pumps: Number of pumps in this crew
-        distance_miles: Distance from requesting crew (None for self)
-        inventory: List of consumables in crew's inventory
-    """
-    crew_id: str
-    pumps: int
-    distance_miles: float | None = None
-    inventory: list[Consumable]
+    # TODO: Implement fields
+    pass
+
+
+class CrewData(BaseModel):
+    """Root model for all crew data."""
+
+    # TODO: Implement fields
+    pass

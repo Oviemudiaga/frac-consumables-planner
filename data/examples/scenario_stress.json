@@ -1,0 +1,6 @@
+{
+  "_description": "10 crews, 20 pumps each, low spares - stress test for edge cases",
+  "crews": [],
+  "proximity_threshold_miles": 10.0,
+  "consumables_per_pump": 5
+}

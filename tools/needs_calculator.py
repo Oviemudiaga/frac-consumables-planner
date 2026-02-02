@@ -1,39 +1,33 @@
 """
-Tool: Calculate consumables needed for a job.
+LangChain tool for calculating consumable replacement needs.
 
-This tool calculates the quantity of each consumable type needed
-based on the number of pumps and job duration in hours.
+This tool analyzes a crew's pumps and determines which consumables
+need replacement based on remaining life vs job duration.
 
-Formula:
-  quantity_needed = (pumps * hours) / consumables_per_pump
-
-Input:
-  - pumps: int (number of pumps)
-  - hours: int (job duration in hours)
-
-Output:
-  - dict mapping consumable names to quantities needed
-    e.g., {"valve_packings": 60, "seals": 60, "valves": 60}
+For each consumable type (valve_packings, seals, plungers):
+- Count pumps where remaining life < job duration
+- Calculate total needed = pumps_needing × consumables_per_pump
 
 Usage:
-  This tool is called first by the agent to determine total needs
-  before checking inventory and planning orders.
+    Agent calls this tool with crew_data to get:
+    {
+        "valve_packings": {"pumps_needing": 2, "total_needed": 10},
+        "seals": {"pumps_needing": 1, "total_needed": 5},
+        "plungers": {"pumps_needing": 0, "total_needed": 0}
+    }
 """
 
-from langchain.tools import tool
 
-
-@tool
-def calculate_consumables_needed(pumps: int, hours: int) -> dict[str, int]:
+def calculate_needs(crew_data, crew_id: str = "A") -> dict:
     """
-    Calculate consumables needed for a frac job.
+    Count pumps needing replacement for each consumable.
 
     Args:
-        pumps: Number of pumps for the job
-        hours: Duration of job in hours
+        crew_data: CrewData containing all crew information
+        crew_id: ID of crew to analyze (default "A")
 
     Returns:
-        Dictionary mapping consumable names to quantities needed
+        Dict mapping consumable name to {pumps_needing: int, total_needed: int}
     """
-    # Implementation will be added in Phase 4
-    ...
+    # TODO: Implement needs calculation logic
+    pass

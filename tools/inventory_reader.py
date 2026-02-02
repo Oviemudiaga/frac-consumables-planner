@@ -1,41 +1,36 @@
 """
-Tool: Read crew inventory from static data.
+LangChain tool for reading crew inventory and computing available spares.
 
-This tool reads inventory data for specified crews from data/crews.json
-and filters based on proximity threshold.
+This tool analyzes all crews to determine:
+- Crew A's spare parts on hand
+- Nearby crews (within proximity threshold) and their available spares
 
-Input:
-  - crew_ids: list[str] (e.g., ["A", "B", "C"])
-  - proximity_threshold: float (max distance in miles, default from config)
+A crew's "available" spares = their spares - their own needs
+(A crew won't lend parts they need themselves)
 
-Output:
-  - list[Crew] containing inventory data for crews within proximity
-
-Business Logic:
-  - Crew A is always included (self, distance = None)
-  - Other crews included if distance <= proximity_threshold
-  - Returns inventory with remaining_life and surplus for each consumable
+Nearby crews are sorted by distance (closest first) for the borrow algorithm.
 
 Usage:
-  Called by agent after calculating needs to check what's available
-  locally and from nearby crews.
+    Agent calls this tool with crew_data to get:
+    {
+        "crew_a_spares": Spares(...),
+        "nearby_crews": [
+            {"crew_id": "B", "distance": 3.5, "available": {...}},
+            {"crew_id": "C", "distance": 8.0, "available": {...}}
+        ]
+    }
 """
 
-from langchain.tools import tool
-from schemas.crew import Crew
 
-
-@tool
-def read_crew_inventory(crew_ids: list[str], proximity_threshold: float = 5.0) -> list[Crew]:
+def read_inventory(crew_data) -> dict:
     """
-    Read inventory data for specified crews.
+    Read all crews, compute available spares for nearby crews.
 
     Args:
-        crew_ids: List of crew IDs to fetch inventory for
-        proximity_threshold: Maximum distance in miles for nearby crews
+        crew_data: CrewData containing all crew information
 
     Returns:
-        List of Crew objects with inventory data
+        Dict with crew_a_spares and nearby_crews list (sorted by distance)
     """
-    # Implementation will be added in Phase 4
-    ...
+    # TODO: Implement inventory reading logic
+    pass

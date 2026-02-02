@@ -1,6 +1,8 @@
 """
-Pydantic schemas for data validation and serialization.
+Pydantic schemas for the frac consumables planner.
 
-This module provides structured models for crew inventory data and order planning.
-All models use Pydantic v2 for runtime validation and JSON serialization.
+This package contains all data models:
+- config.py: SimulationConfig for data generation parameters
+- crew.py: Pump, Spares, Crew, CrewData models
+- order.py: BorrowSource, OrderLineItem, OrderPlan models
 """

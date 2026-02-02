@@ -1,243 +1,91 @@
-# Project Conventions
+# CLAUDE.md - Project Conventions
 
-This document outlines the development conventions for the Frac Consumables Planner project.
+## Project Overview
 
-## Architecture Principles
+Frac Consumables Planner - A LangChain agent-based application for planning pump consumable orders for fracturing crews.
 
-1. **Separation of Concerns**
-   - `/schemas`: Data models only (no business logic)
-   - `/tools`: LangChain tools (focused, single-purpose functions)
-   - `/agent`: Agent orchestration and coordination
-   - `/prompts`: All prompt text in one place
-   - `/ui`: Presentation layer only
-   - `/data`: Static data files
+## Architecture
 
-2. **Data Flow Direction**
-   ```
-   UI → Agent → Tools → Data
-   Data → Tools → Agent → UI
-   ```
-   - UI never calls tools directly
-   - Tools never call each other
-   - Agent orchestrates all tool usage
+```
+/frac-consumables-planner
+├── /data              # JSON data files (crews, scenarios)
+├── /schemas           # Pydantic models
+├── /generator         # Random data generation
+├── /tools             # LangChain tools
+├── /agent             # Agent orchestration
+├── /prompts           # System prompts
+└── /ui                # Streamlit application
+```
 
-## Code Conventions
+## Key Conventions
 
 ### Pydantic Models
 
-All data structures use Pydantic v2 for validation:
+- All data structures use Pydantic v2 BaseModel
+- Schemas live in `/schemas/` directory
+- Use `Field()` with descriptions for all fields
+- Validate ranges with `ge`, `le`, `gt`, `lt` constraints
 
 ```python
 from pydantic import BaseModel, Field
 
 class Example(BaseModel):
-    """Always include a docstring."""
-    field_name: str
-    optional_field: int | None = None
-    field_with_default: float = 100.0
+    value: int = Field(default=10, ge=1, le=100, description="Example value")
 ```
-
-**Rules:**
-- Use type hints (`str`, `int`, `list[str]`, not `List[str]`)
-- Use `|` for unions (Python 3.10+ syntax)
-- Include docstrings for all models and fields
-- Use Field() only when needed (validators, constraints, descriptions)
-- Models in `/schemas` should be pure data (no methods except validators)
-
-### LangChain Tools
-
-Tools use the `@tool` decorator:
-
-```python
-from langchain.tools import tool
-
-@tool
-def example_tool(param: str) -> dict:
-    """
-    Tool description (shown to LLM).
-
-    Args:
-        param: Parameter description
-
-    Returns:
-        Return value description
-    """
-    # Implementation
-    ...
-```
-
-**Rules:**
-- One tool per file
-- Tool name = function name (snake_case)
-- Docstring is shown to the LLM (be clear and concise)
-- Return Pydantic models when possible for type safety
-- Tools should be stateless and deterministic
-- Import Pydantic models from `/schemas`, not define locally
 
 ### Prompts
 
-All prompts live in `/prompts/prompts.py`:
+- All prompts live in `/prompts/prompts.py`
+- Use constants for prompt strings (e.g., `SYSTEM_PROMPT`)
+- Keep prompts as multi-line strings for readability
 
-```python
-SYSTEM_PROMPT = """
-Clear instructions for the agent.
-Use triple-quoted strings for readability.
-"""
+### LangChain Tools
 
-TEMPLATE = """
-Use f-string style placeholders: {variable_name}
-"""
-```
+- Tools are decorated with `@tool` from langchain
+- Each tool has a clear docstring explaining inputs/outputs
+- Tools should be stateless - receive all needed data as parameters
 
-**Rules:**
-- Use UPPER_SNAKE_CASE for prompt constants
-- Include context and decision rules clearly
-- Format with triple quotes for readability
-- Use `{placeholders}` for template variables
-- Document what each prompt is for
+### Data Flow
 
-### Agent Orchestrator
+1. `SimulationConfig` → `generate_crew_data()` → `CrewData`
+2. `CrewData` → Agent Tools → `OrderPlan`
+3. `OrderPlan` → Streamlit UI → User
 
-The agent in `/agent/orchestrator.py`:
+### Naming Conventions
 
-```python
-def create_agent() -> AgentExecutor:
-    """Create agent with tools bound."""
-    # LLM setup
-    # Tool binding
-    # Return configured agent
-    ...
+- Files: `snake_case.py`
+- Classes: `PascalCase`
+- Functions: `snake_case`
+- Constants: `UPPER_SNAKE_CASE`
 
-def run_planning_session(...) -> OrderPlan:
-    """Execute full workflow."""
-    # Invoke agent
-    # Parse result
-    # Return structured output
-    ...
-```
+### Type Hints
 
-**Rules:**
-- Keep agent configuration in `create_agent()`
-- Use `run_planning_session()` as main entry point
-- Always return structured Pydantic models
-- Handle errors gracefully
-- Log agent reasoning for debugging
-
-### Streamlit UI
-
-UI in `/ui/app.py`:
-
-```python
-def main():
-    """Main app entry point."""
-    st.set_page_config(...)
-
-    # Sidebar for inputs
-    with st.sidebar:
-        ...
-
-    # Main content
-    st.title(...)
-    ...
-
-if __name__ == "__main__":
-    main()
-```
-
-**Rules:**
-- Single-page app (no multipage complexity yet)
-- Use session state for persistence
-- Call agent through `run_planning_session()` only
-- Display OrderPlan results in editable form
-- Clear error messages for user
-
-## File Organization
-
-```
-/frac-consumables-planner
-├── /data               # Static datasets
-├── /schemas            # Pydantic models
-├── /tools              # LangChain tools
-├── /agent              # Agent orchestrator
-├── /prompts            # Prompt templates
-├── /ui                 # Streamlit app
-├── CLAUDE.md           # This file
-├── requirements.txt    # Dependencies
-└── README.md           # User documentation
-```
+- Use type hints for all function signatures
+- Use `list[Type]` instead of `List[Type]` (Python 3.10+)
+- Use `dict[K, V]` instead of `Dict[K, V]`
+- Use `X | None` instead of `Optional[X]`
 
 ## Dependencies
 
-See `requirements.txt` for full list. Key dependencies:
-- **langchain**: Agent framework
-- **langchain-ollama**: Ollama integration
-- **pydantic**: Data validation
-- **streamlit**: UI framework
+- **langchain** + **langchain-ollama**: Agent framework with local LLM
+- **pydantic**: Data validation and schemas
+- **streamlit**: Web UI
+- **python-dotenv**: Environment configuration
 
-## Development Workflow
+## Running the Application
 
-1. **Phase 1**: Requirements gathering
-2. **Phase 2**: Architecture design
-3. **Phase 3**: Skeleton creation (current)
-4. **Phase 4**: Implementation
-5. **Phase 5**: Testing and refinement
+```bash
+# Install dependencies
+pip install -r requirements.txt
 
-## Testing Approach
+# Ensure Ollama is running with llama3
+ollama pull llama3
 
-- Unit tests for tools (validate calculations)
-- Integration tests for agent (verify tool orchestration)
-- UI tests for Streamlit (manual testing initially)
-
-## Common Patterns
-
-### Reading Static Data
-
-```python
-import json
-from pathlib import Path
-
-def load_crews_data():
-    """Load crews from data/crews.json."""
-    data_path = Path(__file__).parent.parent / "data" / "crews.json"
-    with open(data_path) as f:
-        return json.load(f)
+# Run Streamlit app
+streamlit run ui/app.py
 ```
 
-### Returning Tool Results
+## Testing
 
-```python
-from schemas.order import OrderPlan
-
-@tool
-def example_tool() -> OrderPlan:
-    """Return Pydantic model for type safety."""
-    return OrderPlan(
-        crew_id="A",
-        # ... fields
-    )
-```
-
-### Agent Invocation
-
-```python
-# In UI
-order_plan = run_planning_session(
-    pumps=12,
-    hours=200,
-    crew_id="A"
-)
-
-# Display results
-st.write(order_plan.recommendation)
-for item in order_plan.items:
-    st.write(f"{item.consumable_name}: {item.to_order}")
-```
-
-## Notes for Claude
-
-- Follow these conventions strictly
-- When unsure, ask rather than improvise
-- Keep functions focused and single-purpose
-- Document all public APIs
-- Type hints are mandatory
-- Docstrings are mandatory for public functions
+- Example scenarios in `/data/examples/` for testing various cases
+- Use `seed` parameter in SimulationConfig for reproducible tests

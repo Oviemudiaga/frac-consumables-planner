@@ -1,4 +1,5 @@
 {
+  "_description": "5 crews with varying distances to test accumulation logic",
   "crews": [],
   "proximity_threshold_miles": 10.0,
   "consumables_per_pump": 5

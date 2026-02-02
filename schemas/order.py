@@ -1,69 +1,38 @@
 """
-Pydantic models for order planning output.
+Pydantic models for order plan output.
 
-Defines:
-- BorrowSource: Where consumables are borrowed from (crew ID + quantity)
-- OrderLineItem: Single consumable's order breakdown (need, borrow, order qty)
-- OrderPlan: Complete order plan with all line items and recommendation
+This module defines the output models for the order planning system:
+- BorrowSource: A source crew for borrowing consumables
+- OrderLineItem: A single line item in the order plan
+- OrderPlan: Complete order plan with all line items
 
-These models structure the agent's output and are used to:
-1. Return structured data from the order_planner tool
-2. Render the editable order form in Streamlit
-3. Ensure consistent order data throughout the application
+Usage:
+    from schemas.order import OrderPlan, OrderLineItem, BorrowSource
+
+    borrow = BorrowSource(crew_id="B", quantity=5, distance=3.5)
+    item = OrderLineItem(consumable_name="seals", ...)
+    plan = OrderPlan(crew_id="A", items=[item], ...)
 """
 
 from pydantic import BaseModel, Field
 
 
 class BorrowSource(BaseModel):
-    """
-    Represents a borrowing source for consumables.
+    """A source crew for borrowing."""
 
-    Attributes:
-        crew_id: ID of crew to borrow from
-        quantity: Quantity to borrow
-    """
-    crew_id: str
-    quantity: int
+    # TODO: Implement fields
+    pass
 
 
 class OrderLineItem(BaseModel):
-    """
-    Order details for a single consumable type.
+    """A single line item in the order plan."""
 
-    Attributes:
-        consumable_name: Name of the consumable
-        total_needed: Total quantity needed for the job
-        on_hand_usable: Quantity on hand with sufficient remaining life
-        borrow: List of crews to borrow from
-        borrow_total: Total quantity borrowed
-        to_order: Quantity that must be ordered (need - on_hand - borrow)
-        unit_cost: Cost per unit (mock value)
-    """
-    consumable_name: str
-    total_needed: int
-    on_hand_usable: int
-    borrow: list[BorrowSource]
-    borrow_total: int
-    to_order: int
-    unit_cost: float = 100.0
+    # TODO: Implement fields
+    pass
 
 
 class OrderPlan(BaseModel):
-    """
-    Complete order plan for a job.
+    """Complete order plan."""
 
-    Attributes:
-        crew_id: Requesting crew's ID
-        job_duration_hours: Job duration in hours
-        pump_count: Number of pumps for the job
-        items: Order line items for each consumable type
-        total_order_cost: Total cost of items to order
-        recommendation: Natural language explanation from agent
-    """
-    crew_id: str
-    job_duration_hours: int
-    pump_count: int
-    items: list[OrderLineItem]
-    total_order_cost: float
-    recommendation: str
+    # TODO: Implement fields
+    pass

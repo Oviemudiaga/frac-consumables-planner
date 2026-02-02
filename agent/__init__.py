@@ -1,7 +1,6 @@
 """
-LangChain agent orchestrator.
+Agent orchestration package.
 
-This module contains the agent that coordinates tool usage to generate
-consumables order plans. The agent uses Ollama (llama3) and has access
-to all tools in the tools/ directory.
+This package contains the LangChain agent configuration
+and tool binding logic for the consumables planner.
 """

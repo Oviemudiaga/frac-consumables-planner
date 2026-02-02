@@ -1,72 +1,38 @@
 """
-Streamlit UI for consumables planning.
+Streamlit UI for the frac consumables planner.
 
-Single-page application that:
-1. Accepts job parameters (pumps, hours)
-2. Calls agent to generate order plan
-3. Displays agent recommendation
-4. Shows editable order form
-5. Handles user approval
+This module provides a single-page Streamlit application with:
 
-Layout:
-  - Header with app title
-  - Job parameters input form (sidebar)
-  - Agent recommendation display
-  - Order table (editable)
-  - Approve & Order button
-  - Confirmation message
+1. CONFIG PANEL (sidebar):
+   - Sliders/inputs for all SimulationConfig parameters
+   - [Generate] button to create new random data
+   - [Load] button to load from file
+   - [Export] button to save current data
+   - [Reset] button to restore defaults
 
-State Management:
-  - Session state for order plan
-  - Editable dataframe for order quantities
-  - Approval workflow
+2. MAIN AREA:
+   - Display of Crew A's pump status and needs
+   - Table of nearby crews sorted by distance
+   - [Generate Order Plan] button to invoke the agent
+   - Agent recommendation display
+   - Editable order form
+   - [Approve & Order] confirmation button
+
+Data Flow:
+   Config → Generate → Session State → Display → Agent → Order Plan
+
+Usage:
+    streamlit run ui/app.py
 """
 
 import streamlit as st
-from agent.orchestrator import run_planning_session
-from schemas.order import OrderPlan
 
 
 def main():
-    """
-    Main Streamlit application entry point.
-
-    Flow:
-        1. Display job parameters form
-        2. User submits parameters
-        3. Agent generates plan
-        4. Display recommendation and editable order
-        5. User approves
-        6. Show confirmation
-    """
-    st.set_page_config(
-        page_title="Frac Consumables Planner",
-        page_icon="🔧",
-        layout="wide"
-    )
-
-    st.title("🔧 Frac Consumables Planner")
-    st.markdown("Plan consumable orders efficiently by borrowing from nearby crews")
-
-    # Sidebar for job parameters
-    with st.sidebar:
-        st.header("Job Parameters")
-        # Input fields will be added in Phase 4
-        ...
-
-    # Main area for results
-    st.header("Order Recommendation")
-    # Display logic will be added in Phase 4
-    ...
-
-    # Order form
-    st.header("Order Details")
-    # Editable table will be added in Phase 4
-    ...
-
-    # Approval button
-    # Approval workflow will be added in Phase 4
-    ...
+    """Main Streamlit application entry point."""
+    # TODO: Implement Streamlit UI
+    st.title("Frac Consumables Planner")
+    st.write("Application skeleton - implementation pending")
 
 
 if __name__ == "__main__":

@@ -1,54 +1,53 @@
 """
-Tool: Compute borrow vs order quantities.
+LangChain tool for planning orders using N-crew borrow logic.
 
-This tool takes the calculated needs and available inventory,
-then determines the optimal borrowing strategy and order quantities.
+This tool implements the borrow-first-then-order algorithm:
+1. Calculate shortfall = total_needed - spares_on_hand
+2. If shortfall > 0, apply N-crew borrow logic:
+   a. Check if any single nearby crew can fully fulfill → use closest one
+   b. If not, accumulate from multiple crews (closest first)
+   c. Order whatever remains unfulfilled
 
-Input:
-  - needs: dict[str, int] (consumable name -> quantity needed)
-  - inventory: list[Crew] (inventory data from all crews)
-  - crew_id: str (requesting crew's ID, default "A")
-
-Output:
-  - OrderPlan containing:
-    * Breakdown for each consumable (on-hand, borrow sources, order qty)
-    * Total order cost
-    * Natural language recommendation
-
-Business Logic:
-  1. Check on-hand inventory (remaining_life > job_duration)
-  2. Attempt to borrow from nearby crews' surplus
-  3. Order remaining deficit
-  4. Calculate total cost (mock $100/unit)
+The algorithm minimizes orders by maximizing borrowing from nearby crews.
 
 Usage:
-  Final tool called by agent to generate the complete order plan
-  that will be displayed in the Streamlit UI.
+    Agent calls this tool with needs, spares, and nearby_crews to get:
+    OrderPlan with items showing borrow sources and order quantities
 """
 
-from langchain.tools import tool
-from schemas.crew import Crew
-from schemas.order import OrderPlan
 
-
-@tool
-def plan_order(
-    needs: dict[str, int],
-    inventory: list[Crew],
-    crew_id: str = "A",
-    job_duration_hours: int = 200
-) -> OrderPlan:
+def plan_order(needs: dict, crew_a_spares, nearby_crews: list, consumables_per_pump: int):
     """
-    Generate order plan with borrow strategy.
+    Apply N-crew borrow logic for each consumable.
 
     Args:
-        needs: Dictionary of consumable needs
-        inventory: List of crew inventory data
-        crew_id: Requesting crew's ID
-        job_duration_hours: Job duration for life validation
+        needs: Dict of consumable needs from needs_calculator
+        crew_a_spares: Spares object for Crew A
+        nearby_crews: List of nearby crews with available spares
+        consumables_per_pump: Number of each consumable per pump
 
     Returns:
-        OrderPlan with line items, costs, and recommendation
+        OrderPlan with complete order details
     """
-    # Implementation will be added in Phase 4
-    ...
+    # TODO: Implement order planning logic
+    pass
+
+
+def apply_n_crew_borrow_logic(shortfall: int, nearby_crews: list, consumable: str):
+    """
+    Generalized N-crew borrow algorithm.
+
+    1. Check if any single crew can fully fulfill → use closest one that can
+    2. If no single crew can, accumulate from closest to furthest
+    3. Order whatever remains
+
+    Args:
+        shortfall: Number of consumables needed
+        nearby_crews: List of crews sorted by distance (closest first)
+        consumable: Name of consumable type
+
+    Returns:
+        Tuple of (list[BorrowSource], to_order: int)
+    """
+    # TODO: Implement N-crew borrow algorithm
+    pass

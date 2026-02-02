@@ -1,60 +1,47 @@
 """
-Agent orchestrator for consumables planning.
+LangChain agent orchestration for the frac consumables planner.
 
-This module creates and manages the LangChain agent that:
-1. Receives user requests (pumps, hours)
-2. Calls tools in sequence (calculate needs, read inventory, plan order)
-3. Returns structured OrderPlan + natural language recommendation
+This module creates and configures the LangChain agent that:
+- Binds the three tools (needs_calculator, inventory_reader, order_planner)
+- Uses the system prompt from prompts.py
+- Orchestrates the tool calls to generate an order plan
 
-Architecture:
-  - Uses Ollama with llama3 model
-  - Tools bound from tools/ module
-  - System prompt from prompts/prompts.py
-  - Returns Pydantic OrderPlan for UI rendering
+The agent flow:
+1. Receive CrewData from the UI
+2. Call calculate_needs to determine what Crew A needs
+3. Call read_inventory to get spares and nearby crew availability
+4. Call plan_order to generate the borrow/order plan
+5. Return recommendation and OrderPlan to the UI
 
-Key Functions:
-  - create_agent(): Initialize agent with tools and LLM
-  - run_planning_session(): Execute full planning workflow
+Usage:
+    from agent.orchestrator import create_agent, run_agent
+
+    agent = create_agent()
+    result = run_agent(agent, crew_data)
 """
 
-from langchain_ollama import OllamaLLM
-from langchain.agents import AgentExecutor, create_react_agent
-from schemas.order import OrderPlan
 
-
-def create_agent() -> AgentExecutor:
+def create_agent():
     """
-    Create the consumables planning agent.
+    Create a LangChain agent with consumables planner tools.
 
     Returns:
-        AgentExecutor configured with tools and LLM
-
-    Configuration:
-        - LLM: Ollama llama3
-        - Tools: calculate_consumables_needed, read_crew_inventory, plan_order
-        - Prompt: System prompt from prompts.py
+        Configured LangChain agent with tools bound
     """
-    # Implementation will be added in Phase 4
-    ...
+    # TODO: Implement agent creation with langchain-ollama
+    pass
 
 
-def run_planning_session(pumps: int, hours: int, crew_id: str = "A") -> OrderPlan:
+def run_agent(agent, crew_data):
     """
-    Run a complete planning session.
+    Run the agent to generate an order plan.
 
     Args:
-        pumps: Number of pumps for the job
-        hours: Job duration in hours
-        crew_id: Requesting crew's ID
+        agent: LangChain agent instance
+        crew_data: CrewData to analyze
 
     Returns:
-        OrderPlan with recommendations and order details
-
-    Process:
-        1. Calculate needs
-        2. Read available inventory
-        3. Plan borrowing and ordering
-        4. Return structured result
+        Dict with recommendation (str) and order_plan (OrderPlan)
     """
-    # Implementation will be added in Phase 4
-    ...
+    # TODO: Implement agent execution
+    pass

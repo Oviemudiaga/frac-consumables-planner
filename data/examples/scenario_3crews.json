@@ -1,4 +1,5 @@
 {
+  "_description": "Standard 3-crew setup matching original Phase 1 scenario",
   "crews": [],
   "proximity_threshold_miles": 10.0,
   "consumables_per_pump": 5

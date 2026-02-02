@@ -1,59 +1,29 @@
 """
-Agent prompts and templates.
+System prompts and prompt templates for the consumables planner agent.
 
 This module contains all prompts used by the LangChain agent:
-  - SYSTEM_PROMPT: Defines agent behavior and decision-making logic
-  - RECOMMENDATION_TEMPLATE: Formats final output to user
+- SYSTEM_PROMPT: Main system prompt defining agent behavior
+- Any additional prompt templates for tool formatting
 
-Prompts should be:
-  - Clear about tool usage sequence
-  - Explicit about business rules (proximity, remaining life, surplus)
-  - Focused on cost optimization and efficiency
+The system prompt instructs the agent to:
+1. Analyze Crew A's consumable needs
+2. Check inventory and nearby crew availability
+3. Apply the borrow-first strategy
+4. Generate a clear recommendation and order plan
+
+Usage:
+    from prompts.prompts import SYSTEM_PROMPT
+
+    agent = create_agent(system_prompt=SYSTEM_PROMPT)
 """
 
-# System prompt for the agent
+# System prompt for the consumables planner agent
 SYSTEM_PROMPT = """
-You are a consumables planning assistant for frac crews.
+TODO: Implement the system prompt for the consumables planner agent.
 
-Your job is to help crews plan consumable orders efficiently by:
-1. Calculating what's needed based on job parameters
-2. Checking what's available on-hand and from nearby crews
-3. Recommending borrowing before ordering to minimize costs
-
-You have access to these tools:
-- calculate_consumables_needed: Calculate quantities needed
-- read_crew_inventory: Check available inventory
-- plan_order: Generate borrowing and order plan
-
-Decision Rules:
-- Only use consumables with remaining_life > job_duration
-- Prioritize borrowing surplus from crews within {proximity_threshold} miles
-- Order only the remaining deficit after borrowing
-- Always explain your reasoning
-
-Process:
-1. Calculate needs using job parameters
-2. Read inventory from all crews
-3. Plan optimal borrow + order strategy
-4. Return structured OrderPlan with recommendation
+The agent should:
+1. Analyze Crew A's pump consumable needs
+2. Check available spares and nearby crew inventory
+3. Apply borrow-first-then-order strategy
+4. Generate a clear recommendation with reasoning
 """
-
-
-# Template for final recommendation
-RECOMMENDATION_TEMPLATE = """
-Based on your job parameters ({pump_count} pumps, {job_duration_hours} hours):
-
-Consumables Needed:
-{needs_summary}
-
-Available Inventory:
-{inventory_summary}
-
-Recommendation:
-{recommendation}
-
-Total Order Cost: ${total_cost:.2f}
-"""
-
-
-# Additional templates can be added here as needed
