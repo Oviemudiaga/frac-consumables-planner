@@ -17,8 +17,10 @@ Usage:
     }
 """
 
+from schemas.crew import CrewData
 
-def calculate_needs(crew_data, crew_id: str = "A") -> dict:
+
+def calculate_needs(crew_data: CrewData, crew_id: str = "A") -> dict:
     """
     Count pumps needing replacement for each consumable.
 
@@ -29,5 +31,32 @@ def calculate_needs(crew_data, crew_id: str = "A") -> dict:
     Returns:
         Dict mapping consumable name to {pumps_needing: int, total_needed: int}
     """
-    # TODO: Implement needs calculation logic
-    pass
+    # Find the target crew
+    crew = None
+    for c in crew_data.crews:
+        if c.crew_id == crew_id:
+            crew = c
+            break
+
+    if crew is None:
+        raise ValueError(f"Crew {crew_id} not found")
+
+    # Calculate needs for each consumable type
+    consumables = ["valve_packings", "seals", "plungers"]
+    result = {}
+
+    for consumable in consumables:
+        pumps_needing = 0
+        for pump in crew.pumps:
+            # Get the remaining life for this consumable
+            remaining_life = getattr(pump, f"{consumable}_life")
+            if remaining_life < crew.job_duration_hours:
+                pumps_needing += 1
+
+        total_needed = pumps_needing * crew_data.consumables_per_pump
+        result[consumable] = {
+            "pumps_needing": pumps_needing,
+            "total_needed": total_needed
+        }
+
+    return result

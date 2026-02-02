@@ -1,6 +1,41 @@
 {
-  "_description": "Standard 3-crew setup matching original Phase 1 scenario",
-  "crews": [],
+  "_description": "Standard 3-crew setup matching spreadsheet example",
+  "crews": [
+    {
+      "crew_id": "A",
+      "job_duration_hours": 50,
+      "distance_to_crew_a": null,
+      "pumps": [
+        {"pump_id": 1, "valve_packings_life": 55, "seals_life": 65, "plungers_life": 85},
+        {"pump_id": 2, "valve_packings_life": 58, "seals_life": 45, "plungers_life": 90},
+        {"pump_id": 3, "valve_packings_life": 40, "seals_life": 75, "plungers_life": 85}
+      ],
+      "spares": {"valve_packings": 0, "seals": 5, "plungers": 10}
+    },
+    {
+      "crew_id": "B",
+      "job_duration_hours": 40,
+      "distance_to_crew_a": 4.0,
+      "pumps": [
+        {"pump_id": 1, "valve_packings_life": 65, "seals_life": 75, "plungers_life": 85},
+        {"pump_id": 2, "valve_packings_life": 60, "seals_life": 72, "plungers_life": 80},
+        {"pump_id": 3, "valve_packings_life": 55, "seals_life": 73, "plungers_life": 90}
+      ],
+      "spares": {"valve_packings": 16, "seals": 7, "plungers": 6}
+    },
+    {
+      "crew_id": "C",
+      "job_duration_hours": 50,
+      "distance_to_crew_a": 2.5,
+      "pumps": [
+        {"pump_id": 1, "valve_packings_life": 45, "seals_life": 70, "plungers_life": 81},
+        {"pump_id": 2, "valve_packings_life": 55, "seals_life": 46, "plungers_life": 85},
+        {"pump_id": 3, "valve_packings_life": 57, "seals_life": 73, "plungers_life": 81},
+        {"pump_id": 4, "valve_packings_life": 48, "seals_life": 71, "plungers_life": 75}
+      ],
+      "spares": {"valve_packings": 10, "seals": 5, "plungers": 15}
+    }
+  ],
   "proximity_threshold_miles": 10.0,
   "consumables_per_pump": 5
 }

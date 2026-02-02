@@ -21,26 +21,33 @@ from pydantic import BaseModel, Field
 class Pump(BaseModel):
     """A single pump with remaining life per consumable."""
 
-    # TODO: Implement fields
-    pass
+    pump_id: int = Field(description="Pump identifier")
+    valve_packings_life: int = Field(ge=0, description="Remaining hours for valve packings")
+    seals_life: int = Field(ge=0, description="Remaining hours for seals")
+    plungers_life: int = Field(ge=0, description="Remaining hours for plungers")
 
 
 class Spares(BaseModel):
     """Spare parts inventory."""
 
-    # TODO: Implement fields
-    pass
+    valve_packings: int = Field(default=0, ge=0, description="Number of valve packing spares")
+    seals: int = Field(default=0, ge=0, description="Number of seal spares")
+    plungers: int = Field(default=0, ge=0, description="Number of plunger spares")
 
 
 class Crew(BaseModel):
     """A fracturing crew."""
 
-    # TODO: Implement fields
-    pass
+    crew_id: str = Field(description="Crew identifier")
+    job_duration_hours: int = Field(gt=0, description="Job duration in hours")
+    distance_to_crew_a: float | None = Field(default=None, description="Distance to Crew A in miles (null for Crew A itself)")
+    pumps: list[Pump] = Field(description="List of pumps in this crew")
+    spares: Spares = Field(description="Spare parts inventory")
 
 
 class CrewData(BaseModel):
     """Root model for all crew data."""
 
-    # TODO: Implement fields
-    pass
+    crews: list[Crew] = Field(description="List of all crews")
+    proximity_threshold_miles: float = Field(gt=0, description="Maximum distance for crew to be considered nearby")
+    consumables_per_pump: int = Field(gt=0, description="Number of each consumable type required per pump")
