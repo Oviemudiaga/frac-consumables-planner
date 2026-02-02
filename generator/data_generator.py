@@ -21,8 +21,15 @@ Usage:
     crew_data = generate_crew_data(config)
 """
 
+import json
+import random
+from pathlib import Path
 
-def generate_crew_data(config):
+from schemas.config import SimulationConfig
+from schemas.crew import CrewData, Crew, Pump, Spares
+
+
+def generate_crew_data(config: SimulationConfig) -> CrewData:
     """
     Generate randomized crew data based on configuration.
 
@@ -32,11 +39,61 @@ def generate_crew_data(config):
     Returns:
         CrewData with N crews, each with M pumps
     """
-    # TODO: Implement generation logic
-    pass
+    if config.seed is not None:
+        random.seed(config.seed)
+
+    crews: list[Crew] = []
+    crew_letters = "ABCDEFGHIJ"
+
+    for i in range(config.num_crews):
+        crew_id = crew_letters[i]
+
+        # Generate pumps for this crew
+        num_pumps = random.randint(config.min_pumps_per_crew, config.max_pumps_per_crew)
+        pumps: list[Pump] = []
+
+        for pump_id in range(1, num_pumps + 1):
+            pump = Pump(
+                pump_id=pump_id,
+                valve_packings_life=random.randint(config.min_remaining_life, config.max_remaining_life),
+                seals_life=random.randint(config.min_remaining_life, config.max_remaining_life),
+                plungers_life=random.randint(config.min_remaining_life, config.max_remaining_life)
+            )
+            pumps.append(pump)
+
+        # Generate spares
+        spares = Spares(
+            valve_packings=random.randint(config.min_spares, config.max_spares),
+            seals=random.randint(config.min_spares, config.max_spares),
+            plungers=random.randint(config.min_spares, config.max_spares)
+        )
+
+        # Distance: None for Crew A, random for others
+        if i == 0:
+            distance = None
+        else:
+            distance = round(random.uniform(config.min_distance, config.max_distance), 1)
+
+        # Job duration
+        job_duration = random.randint(config.min_job_duration, config.max_job_duration)
+
+        crew = Crew(
+            crew_id=crew_id,
+            job_duration_hours=job_duration,
+            distance_to_crew_a=distance,
+            pumps=pumps,
+            spares=spares
+        )
+        crews.append(crew)
+
+    return CrewData(
+        crews=crews,
+        proximity_threshold_miles=config.proximity_threshold_miles,
+        consumables_per_pump=config.consumables_per_pump
+    )
 
 
-def load_crew_data(filepath: str):
+def load_crew_data(filepath: str) -> CrewData:
     """
     Load crew data from JSON file.
 
@@ -46,11 +103,18 @@ def load_crew_data(filepath: str):
     Returns:
         CrewData instance
     """
-    # TODO: Implement loading logic
-    pass
+    path = Path(filepath)
+    with open(path, "r") as f:
+        data = json.load(f)
+
+    # Remove _description field if present (it's metadata)
+    if "_description" in data:
+        del data["_description"]
+
+    return CrewData(**data)
 
 
-def save_crew_data(crew_data, filepath: str) -> None:
+def save_crew_data(crew_data: CrewData, filepath: str) -> None:
     """
     Save crew data to JSON file.
 
@@ -58,5 +122,8 @@ def save_crew_data(crew_data, filepath: str) -> None:
         crew_data: CrewData instance to save
         filepath: Path to output JSON file
     """
-    # TODO: Implement saving logic
-    pass
+    path = Path(filepath)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(path, "w") as f:
+        json.dump(crew_data.model_dump(), f, indent=2)
