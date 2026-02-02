@@ -1,0 +1,36 @@
+{
+  "crews": [
+    {
+      "crew_id": "A",
+      "pumps": 12,
+      "distance_miles": null,
+      "inventory": [
+        {"name": "valve_packings", "quantity": 10, "remaining_life_hours": 50, "surplus": 0},
+        {"name": "seals", "quantity": 15, "remaining_life_hours": 60, "surplus": 0},
+        {"name": "valves", "quantity": 8, "remaining_life_hours": 40, "surplus": 0}
+      ]
+    },
+    {
+      "crew_id": "B",
+      "pumps": 8,
+      "distance_miles": 3,
+      "inventory": [
+        {"name": "valve_packings", "quantity": 20, "remaining_life_hours": 150, "surplus": 10},
+        {"name": "seals", "quantity": 25, "remaining_life_hours": 200, "surplus": 15},
+        {"name": "valves", "quantity": 12, "remaining_life_hours": 180, "surplus": 6}
+      ]
+    },
+    {
+      "crew_id": "C",
+      "pumps": 6,
+      "distance_miles": 4,
+      "inventory": [
+        {"name": "valve_packings", "quantity": 12, "remaining_life_hours": 180, "surplus": 5},
+        {"name": "seals", "quantity": 10, "remaining_life_hours": 160, "surplus": 5},
+        {"name": "valves", "quantity": 8, "remaining_life_hours": 150, "surplus": 3}
+      ]
+    }
+  ],
+  "proximity_threshold_miles": 5,
+  "consumables_per_pump": 5
+}

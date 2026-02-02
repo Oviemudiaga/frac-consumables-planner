@@ -1,0 +1,17 @@
+# LLM & Agent Framework
+langchain>=0.1.0
+langchain-ollama>=0.1.0
+
+# Structured Output & Validation
+pydantic>=2.0.0
+
+# UI Framework
+streamlit>=1.30.0
+
+# Utilities
+python-dotenv>=1.0.0
+
+# Development Dependencies (optional)
+# pytest>=7.0.0
+# black>=23.0.0
+# ruff>=0.1.0
