@@ -156,9 +156,99 @@ def create_agent(model: str = "llama3"):
     return agent
 
 
+def _run_deterministic_pipeline(crew_data: CrewData) -> dict:
+    """
+    Run the tools in a deterministic sequence without relying on the LLM.
+
+    This is a fallback when the agent fails to complete the tool sequence.
+
+    Args:
+        crew_data: CrewData to analyze
+
+    Returns:
+        Dict with recommendation (str) and order_plan (OrderPlan)
+    """
+    # Find Crew A
+    crew_a = None
+    for crew in crew_data.crews:
+        if crew.distance_to_crew_a is None:
+            crew_a = crew
+            break
+
+    if crew_a is None:
+        raise ValueError("Crew A not found")
+
+    # Step 1: Calculate needs
+    needs = calculate_needs(crew_data, "A")
+
+    # Step 2: Read inventory
+    inventory_result = read_inventory(crew_data)
+    crew_a_spares = inventory_result["crew_a_spares"]
+    nearby_crews = inventory_result["nearby_crews"]
+
+    # Step 3: Plan order
+    order_plan = plan_order(
+        needs=needs,
+        crew_a_spares=crew_a_spares,
+        nearby_crews=nearby_crews,
+        crew_id="A",
+        job_duration_hours=crew_a.job_duration_hours
+    )
+
+    # Generate a recommendation summary
+    recommendation = _generate_recommendation(order_plan, nearby_crews)
+
+    return {
+        "recommendation": recommendation,
+        "order_plan": order_plan
+    }
+
+
+def _generate_recommendation(order_plan: OrderPlan, nearby_crews: list) -> str:
+    """Generate a human-readable recommendation from the order plan."""
+    lines = [f"**Order Plan for Crew {order_plan.crew_id}** ({order_plan.job_duration_hours}-hour job)\n"]
+
+    for item in order_plan.items:
+        display_name = item.consumable_name.replace("_", " ").title()
+
+        if item.total_needed == 0:
+            lines.append(f"- **{display_name}**: No replacement needed")
+            continue
+
+        shortfall = max(0, item.total_needed - item.on_hand)
+        lines.append(f"- **{display_name}**: Need {item.total_needed}, have {item.on_hand} on hand")
+
+        if shortfall > 0:
+            if item.borrow_sources:
+                borrow_details = ", ".join([
+                    f"Crew {b.crew_id} ({b.quantity} units, {b.distance} mi)"
+                    for b in item.borrow_sources
+                ])
+                total_borrowed = sum(b.quantity for b in item.borrow_sources)
+                lines.append(f"  - Borrow {total_borrowed}: {borrow_details}")
+
+            if item.to_order > 0:
+                lines.append(f"  - **Order {item.to_order}** from supplier")
+            else:
+                lines.append(f"  - ✓ Fully covered by borrowing")
+        else:
+            lines.append(f"  - ✓ Covered by on-hand spares")
+
+    # Summary
+    total_to_order = sum(item.to_order for item in order_plan.items)
+    total_to_borrow = sum(sum(b.quantity for b in item.borrow_sources) for item in order_plan.items)
+
+    lines.append(f"\n**Summary**: Borrow {total_to_borrow} total, order {total_to_order} total from supplier.")
+
+    return "\n".join(lines)
+
+
 def run_agent(agent, crew_data: CrewData) -> dict:
     """
     Run the agent to generate an order plan.
+
+    Falls back to deterministic pipeline if the agent fails to complete
+    the tool sequence (common with smaller LLM models).
 
     Args:
         agent: LangGraph compiled agent
@@ -190,28 +280,36 @@ def run_agent(agent, crew_data: CrewData) -> dict:
         "Generate an order plan and provide a recommendation."
     )
 
-    # Run the agent - LangGraph agents use invoke with messages
-    result = agent.invoke({"messages": [("user", input_message)]})
+    try:
+        # Run the agent - LangGraph agents use invoke with messages
+        result = agent.invoke({"messages": [("user", input_message)]})
 
-    # Extract the final response from messages
-    messages = result.get("messages", [])
-    recommendation = "No recommendation generated."
+        # Extract the final response from messages
+        messages = result.get("messages", [])
+        recommendation = "No recommendation generated."
 
-    # Get the last AI message as the recommendation
-    for msg in reversed(messages):
-        if hasattr(msg, 'content') and msg.type == "ai" and msg.content:
-            # Skip tool call messages
-            if not hasattr(msg, 'tool_calls') or not msg.tool_calls:
-                recommendation = msg.content
-                break
+        # Get the last AI message as the recommendation
+        for msg in reversed(messages):
+            if hasattr(msg, 'content') and msg.type == "ai" and msg.content:
+                # Skip tool call messages
+                if not hasattr(msg, 'tool_calls') or not msg.tool_calls:
+                    recommendation = msg.content
+                    break
 
-    # Get order_plan from context (stored by plan_order_tool)
-    order_plan = _context.get("order_plan")
+        # Get order_plan from context (stored by plan_order_tool)
+        order_plan = _context.get("order_plan")
 
-    if order_plan is None:
-        raise RuntimeError("Agent did not generate an order plan. The plan_order_tool was not called.")
+        if order_plan is None:
+            # Agent didn't complete the sequence, fall back to deterministic
+            print("Agent did not call plan_order_tool. Falling back to deterministic pipeline.")
+            return _run_deterministic_pipeline(crew_data)
 
-    return {
-        "recommendation": recommendation,
-        "order_plan": order_plan
-    }
+        return {
+            "recommendation": recommendation,
+            "order_plan": order_plan
+        }
+
+    except Exception as e:
+        # If agent fails entirely, fall back to deterministic pipeline
+        print(f"Agent failed with error: {e}. Falling back to deterministic pipeline.")
+        return _run_deterministic_pipeline(crew_data)
