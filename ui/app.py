@@ -33,6 +33,7 @@ from tools.needs_calculator import calculate_needs
 from tools.inventory_reader import read_inventory
 from generator.data_generator import generate_crew_data, load_crew_data, save_crew_data
 from agent.orchestrator import create_agent, run_agent
+from ui.ollama_utils import get_available_models
 
 
 def get_available_scenarios() -> list[str]:
@@ -98,6 +99,8 @@ def main():
         st.session_state.agent_result = None
     if "agent_error" not in st.session_state:
         st.session_state.agent_error = None
+    if "selected_model" not in st.session_state:
+        st.session_state.selected_model = "llama3"
 
     crew_data = st.session_state.crew_data
     crew_a = get_crew_a(crew_data)
@@ -190,6 +193,30 @@ def main():
             st.markdown("#### Current Data Info")
             st.info(f"Loaded: {len(crew_data.crews)} crews, Proximity threshold: {crew_data.proximity_threshold_miles} mi, "
                     f"Consumables per pump: {crew_data.consumables_per_pump}")
+
+        st.divider()
+
+        # LLM Model Settings
+        st.markdown("#### LLM Settings")
+        model_col1, model_col2 = st.columns([2, 1])
+
+        with model_col1:
+            models = get_available_models()
+            if models:
+                default_idx = models.index(st.session_state.selected_model) if st.session_state.selected_model in models else 0
+                st.session_state.selected_model = st.selectbox(
+                    "Ollama Model",
+                    options=models,
+                    index=default_idx
+                )
+            else:
+                st.warning("No Ollama models found. Run: `ollama pull llama3`")
+                st.session_state.selected_model = "llama3"
+
+        with model_col2:
+            st.caption("Refresh list")
+            if st.button("Refresh Models", use_container_width=True):
+                st.rerun()
 
     st.divider()
 
@@ -301,7 +328,7 @@ def main():
 
         with st.spinner("Agent is analyzing data and generating order plan..."):
             try:
-                agent = create_agent(model="llama3")
+                agent = create_agent(model=st.session_state.selected_model)
                 result = run_agent(agent, crew_data)
                 st.session_state.agent_result = result
                 st.session_state.show_order_plan = True
@@ -320,7 +347,7 @@ def main():
     # Display agent error if any
     if st.session_state.agent_error:
         st.error(f"Agent failed: {st.session_state.agent_error}")
-        st.info("Make sure Ollama is running with llama3 model: `ollama pull llama3 && ollama serve`")
+        st.info(f"Make sure Ollama is running with the {st.session_state.selected_model} model: `ollama pull {st.session_state.selected_model} && ollama serve`")
 
     # Display order plan if available
     if st.session_state.show_order_plan and st.session_state.agent_result:
