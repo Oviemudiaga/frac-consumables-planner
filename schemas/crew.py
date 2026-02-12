@@ -36,13 +36,17 @@ class Spares(BaseModel):
 
 
 class Crew(BaseModel):
-    """A fracturing crew."""
+    """A fracturing crew with geographic location."""
 
     crew_id: str = Field(description="Crew identifier")
     job_duration_hours: int = Field(gt=0, description="Job duration in hours")
     distance_to_crew_a: float | None = Field(default=None, description="Distance to Crew A in miles (null for Crew A itself)")
     pumps: list[Pump] = Field(description="List of pumps in this crew")
     spares: Spares = Field(description="Spare parts inventory")
+    # Geographic hierarchy: Country > Region > Area
+    country: str = Field(default="United States", description="Country where crew is located")
+    region: str = Field(default="Texas", description="Region/state within country")
+    area: str = Field(default="Permian Basin", description="Specific area/basin within region")
 
 
 class CrewData(BaseModel):

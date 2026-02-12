@@ -1,22 +1,20 @@
 """
 Streamlit UI for the frac consumables planner.
 
-This module provides a single-page Streamlit application with:
+This module provides a tabbed Streamlit application with:
 
-1. CONFIG PANEL (collapsible expander):
-   - Sliders/inputs for simulation parameters
-   - Load/Generate/Export data buttons
+1. PUMP STATUS TAB:
+   - Left panel: All crews' pump status with health indicators
+   - Right panel: Context-aware chatbot for pump questions
 
-2. MAIN AREA:
-   - Left column: Crew A's pump status and needs
-   - Right column: Nearby crews sorted by distance
-   - Order plan section with editable form
+2. JOB PLANNING TAB:
+   - Left panel: Crew A's job planning and order generation
+   - Right panel: Context-aware chatbot for planning questions
 
 Usage:
     streamlit run ui/app.py
 """
 
-import json
 import sys
 from pathlib import Path
 
@@ -34,6 +32,8 @@ from tools.inventory_reader import read_inventory
 from generator.data_generator import generate_crew_data, load_crew_data, save_crew_data
 from agent.orchestrator import create_agent, run_agent
 from ui.ollama_utils import get_available_models
+from ui.components.pump_status import render_all_crews_status, get_health_emoji
+from ui.components.chatbot_ui import render_chatbot
 
 
 def get_available_scenarios() -> list[str]:
@@ -52,41 +52,11 @@ def get_crew_a(crew_data: CrewData):
     return None
 
 
-def get_status_indicator(remaining_life: int, job_duration: int) -> str:
-    """Return status indicator based on remaining life vs job duration."""
-    if remaining_life >= job_duration:
-        return "✓"
-    return "⚠️"
 
 
-def style_pump_table(df: pd.DataFrame, job_duration: int) -> pd.DataFrame:
-    """Apply styling to highlight cells where life < job_duration."""
-    def highlight_low_life(val, col_name):
-        if col_name in ["Valve Packings", "Seals", "Plungers"]:
-            if isinstance(val, (int, float)) and val < job_duration:
-                return "background-color: #ffcccc; color: #cc0000; font-weight: bold"
-        return ""
-
-    styled = df.style.apply(
-        lambda row: [highlight_low_life(val, col) for col, val in row.items()],
-        axis=1
-    )
-    return styled
-
-
-def main():
-    """Main Streamlit application entry point."""
-    st.set_page_config(
-        page_title="Frac Consumables Planner",
-        page_icon="🔧",
-        layout="wide"
-    )
-
-    st.title("Frac Consumables Planner")
-
-    # Initialize session state
+def initialize_session_state():
+    """Initialize all session state variables."""
     if "crew_data" not in st.session_state:
-        # Load default scenario
         default_path = Path(__file__).parent.parent / "data" / "examples" / "scenario_3crews.json"
         st.session_state.crew_data = load_crew_data(str(default_path))
     if "show_order_plan" not in st.session_state:
@@ -101,12 +71,17 @@ def main():
         st.session_state.agent_error = None
     if "selected_model" not in st.session_state:
         st.session_state.selected_model = "llama3"
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+    if "active_tab" not in st.session_state:
+        st.session_state.active_tab = "pump_status"
 
+
+def render_settings_panel():
+    """Render the collapsible settings panel."""
     crew_data = st.session_state.crew_data
-    crew_a = get_crew_a(crew_data)
 
-    # Collapsible Simulation Settings Panel
-    with st.expander("Simulation Settings & Data Management", expanded=False):
+    with st.expander("Settings & Data Management", expanded=False):
         st.markdown("#### Data Loading")
         data_col1, data_col2, data_col3 = st.columns(3)
 
@@ -126,6 +101,7 @@ def main():
                     st.session_state.order_quantities = {}
                     st.session_state.agent_result = None
                     st.session_state.agent_error = None
+                    st.session_state.chat_history = []
                     st.rerun()
                 except Exception as e:
                     st.error(f"Failed to load file: {e}")
@@ -185,6 +161,7 @@ def main():
                     st.session_state.order_quantities = {}
                     st.session_state.agent_result = None
                     st.session_state.agent_error = None
+                    st.session_state.chat_history = []
                     st.session_state.show_generator = False
                     st.rerun()
                 except Exception as e:
@@ -218,93 +195,131 @@ def main():
             if st.button("Refresh Models", use_container_width=True):
                 st.rerun()
 
-    st.divider()
 
-    # Refresh data reference after potential changes
+def render_pump_status_tab():
+    """Render the Pump Status tab content."""
+    crew_data = st.session_state.crew_data
+
+    left_col, right_col = st.columns([3, 2])
+
+    with left_col:
+        render_all_crews_status(crew_data)
+
+    with right_col:
+        render_chatbot(
+            crew_data=crew_data,
+            context_mode="pump_status",
+            order_plan=None,
+            selected_model=st.session_state.selected_model
+        )
+
+
+def render_job_planning_tab():
+    """Render the Job Planning tab content."""
     crew_data = st.session_state.crew_data
     crew_a = get_crew_a(crew_data)
 
-    # Main content: Two columns
     left_col, right_col = st.columns([3, 2])
 
-    # LEFT COLUMN: Crew A Details
     with left_col:
-        st.subheader(f"Crew {crew_a.crew_id} - Job Plan")
-        st.metric("Job Duration", f"{crew_a.job_duration_hours} hours")
+        render_job_planning_panel(crew_data, crew_a)
 
-        # Pump Status Table
-        st.markdown("#### Pump Status")
-        st.caption(f"⚠️ = remaining life < job duration ({crew_a.job_duration_hours} hrs) | ✓ = sufficient")
-
-        pump_data = []
-        for pump in crew_a.pumps:
-            pump_data.append({
-                "Pump #": pump.pump_id,
-                "Valve Packings": f"{pump.valve_packings_life} {get_status_indicator(pump.valve_packings_life, crew_a.job_duration_hours)}",
-                "Seals": f"{pump.seals_life} {get_status_indicator(pump.seals_life, crew_a.job_duration_hours)}",
-                "Plungers": f"{pump.plungers_life} {get_status_indicator(pump.plungers_life, crew_a.job_duration_hours)}"
-            })
-
-        df_pumps = pd.DataFrame(pump_data)
-        st.dataframe(df_pumps, use_container_width=True, hide_index=True)
-
-        # Spares On Hand
-        st.markdown("#### Spares On Hand")
-        spares_col1, spares_col2, spares_col3 = st.columns(3)
-        with spares_col1:
-            st.metric("Valve Packings", crew_a.spares.valve_packings)
-        with spares_col2:
-            st.metric("Seals", crew_a.spares.seals)
-        with spares_col3:
-            st.metric("Plungers", crew_a.spares.plungers)
-
-        # Calculated Needs
-        st.markdown("#### Calculated Needs")
-        needs = calculate_needs(crew_data, "A")
-
-        needs_data = []
-        for consumable, data in needs.items():
-            display_name = consumable.replace("_", " ").title()
-            status = "⚠️ Needs attention" if data["total_needed"] > 0 else "✓ OK"
-            needs_data.append({
-                "Consumable": display_name,
-                "Pumps Needing": data["pumps_needing"],
-                "Total Needed": data["total_needed"],
-                "Status": status
-            })
-
-        df_needs = pd.DataFrame(needs_data)
-        st.dataframe(df_needs, use_container_width=True, hide_index=True)
-
-    # RIGHT COLUMN: Nearby Crews
     with right_col:
-        st.subheader("Nearby Crews")
-        st.caption(f"Within {crew_data.proximity_threshold_miles} miles")
+        order_plan = st.session_state.agent_result.get("order_plan") if st.session_state.agent_result else None
+        render_chatbot(
+            crew_data=crew_data,
+            context_mode="job_planning",
+            order_plan=order_plan,
+            selected_model=st.session_state.selected_model
+        )
 
-        inventory = read_inventory(crew_data)
 
-        if not inventory["nearby_crews"]:
-            st.info("No nearby crews within proximity threshold")
-        else:
-            for nearby in inventory["nearby_crews"]:
-                with st.container(border=True):
-                    st.markdown(f"**Crew {nearby['crew_id']}** — {nearby['distance']} miles")
-                    st.caption("Available Spares (after their own needs)")
+def render_job_planning_panel(crew_data: CrewData, crew_a):
+    """Render the job planning panel (left side of Job Planning tab)."""
+    st.subheader(f"Crew {crew_a.crew_id} - Job Plan")
+    st.metric("Job Duration", f"{crew_a.job_duration_hours} hours")
 
-                    avail_col1, avail_col2, avail_col3 = st.columns(3)
-                    with avail_col1:
-                        val = nearby["available"]["valve_packings"]
-                        st.metric("Valve Packings", f"{val} {'✓' if val > 0 else ''}")
-                    with avail_col2:
-                        val = nearby["available"]["seals"]
-                        st.metric("Seals", f"{val} {'✓' if val > 0 else ''}")
-                    with avail_col3:
-                        val = nearby["available"]["plungers"]
-                        st.metric("Plungers", f"{val} {'✓' if val > 0 else ''}")
+    # Pump Status Table
+    st.markdown("#### Pump Status")
+    st.caption("🔴 = critical | 🟡 = marginal | 🟢 = healthy")
+
+    pump_data = []
+    for pump in crew_a.pumps:
+        pump_data.append({
+            "Pump #": pump.pump_id,
+            "Valve Packings": f"{pump.valve_packings_life}h {get_health_emoji(pump.valve_packings_life, crew_a.job_duration_hours)}",
+            "Seals": f"{pump.seals_life}h {get_health_emoji(pump.seals_life, crew_a.job_duration_hours)}",
+            "Plungers": f"{pump.plungers_life}h {get_health_emoji(pump.plungers_life, crew_a.job_duration_hours)}"
+        })
+
+    df_pumps = pd.DataFrame(pump_data)
+    st.dataframe(df_pumps, use_container_width=True, hide_index=True)
+
+    # Spares On Hand
+    st.markdown("#### Spares On Hand")
+    spares_col1, spares_col2, spares_col3 = st.columns(3)
+    with spares_col1:
+        st.metric("Valve Packings", crew_a.spares.valve_packings)
+    with spares_col2:
+        st.metric("Seals", crew_a.spares.seals)
+    with spares_col3:
+        st.metric("Plungers", crew_a.spares.plungers)
+
+    # Calculated Needs
+    st.markdown("#### Calculated Needs")
+    needs = calculate_needs(crew_data, "A")
+
+    needs_data = []
+    for consumable, data in needs.items():
+        display_name = consumable.replace("_", " ").title()
+        status = "⚠️ Needs attention" if data["total_needed"] > 0 else "✓ OK"
+        needs_data.append({
+            "Consumable": display_name,
+            "Pumps Needing": data["pumps_needing"],
+            "Total Needed": data["total_needed"],
+            "Status": status
+        })
+
+    df_needs = pd.DataFrame(needs_data)
+    st.dataframe(df_needs, use_container_width=True, hide_index=True)
+
+    # Nearby Crews Section
+    st.markdown("#### Nearby Crews")
+    st.caption(f"Within {crew_data.proximity_threshold_miles} miles")
+
+    inventory = read_inventory(crew_data)
+
+    if not inventory["nearby_crews"]:
+        st.info("No nearby crews within proximity threshold")
+    else:
+        for nearby in inventory["nearby_crews"]:
+            # Look up the crew to get geography info (with safe access)
+            nearby_crew = next((c for c in crew_data.crews if c.crew_id == nearby['crew_id']), None)
+            location_str = f" | {getattr(nearby_crew, 'area', '')}" if nearby_crew and hasattr(nearby_crew, 'area') else ""
+
+            with st.container(border=True):
+                st.markdown(f"**Crew {nearby['crew_id']}** — {nearby['distance']} mi{location_str}")
+                st.caption("Available Spares (after their own needs)")
+
+                avail_col1, avail_col2, avail_col3 = st.columns(3)
+                with avail_col1:
+                    val = nearby["available"]["valve_packings"]
+                    st.metric("Valve Packings", f"{val} {'✓' if val > 0 else ''}")
+                with avail_col2:
+                    val = nearby["available"]["seals"]
+                    st.metric("Seals", f"{val} {'✓' if val > 0 else ''}")
+                with avail_col3:
+                    val = nearby["available"]["plungers"]
+                    st.metric("Plungers", f"{val} {'✓' if val > 0 else ''}")
 
     st.divider()
 
     # Order Plan Section
+    render_order_plan_section(crew_data)
+
+
+def render_order_plan_section(crew_data: CrewData):
+    """Render the order plan generation and display section."""
     st.subheader("Order Plan")
 
     # Generate Order Plan button
@@ -449,6 +464,36 @@ def main():
                 st.dataframe(pd.DataFrame(borrow_data), use_container_width=True, hide_index=True)
             else:
                 st.info("No borrowing required.")
+
+
+def main():
+    """Main Streamlit application entry point."""
+    st.set_page_config(
+        page_title="Frac Consumables Planner",
+        page_icon="🔧",
+        layout="wide"
+    )
+
+    st.title("Frac Consumables Planner")
+
+    # Initialize session state
+    initialize_session_state()
+
+    # Render shared settings panel
+    render_settings_panel()
+
+    st.divider()
+
+    # Create tabs
+    tab1, tab2 = st.tabs(["📊 Pump Status", "📋 Job Planning"])
+
+    with tab1:
+        st.session_state.active_tab = "pump_status"
+        render_pump_status_tab()
+
+    with tab2:
+        st.session_state.active_tab = "job_planning"
+        render_job_planning_tab()
 
 
 if __name__ == "__main__":

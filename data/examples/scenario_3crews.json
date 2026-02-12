@@ -10,7 +10,10 @@
         {"pump_id": 2, "valve_packings_life": 58, "seals_life": 45, "plungers_life": 90},
         {"pump_id": 3, "valve_packings_life": 40, "seals_life": 75, "plungers_life": 85}
       ],
-      "spares": {"valve_packings": 0, "seals": 5, "plungers": 10}
+      "spares": {"valve_packings": 0, "seals": 5, "plungers": 10},
+      "country": "United States",
+      "region": "Texas",
+      "area": "Permian Basin"
     },
     {
       "crew_id": "B",
@@ -21,7 +24,10 @@
         {"pump_id": 2, "valve_packings_life": 60, "seals_life": 72, "plungers_life": 80},
         {"pump_id": 3, "valve_packings_life": 55, "seals_life": 73, "plungers_life": 90}
       ],
-      "spares": {"valve_packings": 16, "seals": 7, "plungers": 6}
+      "spares": {"valve_packings": 16, "seals": 7, "plungers": 6},
+      "country": "United States",
+      "region": "Texas",
+      "area": "Permian Basin"
     },
     {
       "crew_id": "C",
@@ -33,7 +39,10 @@
         {"pump_id": 3, "valve_packings_life": 57, "seals_life": 73, "plungers_life": 81},
         {"pump_id": 4, "valve_packings_life": 48, "seals_life": 71, "plungers_life": 75}
       ],
-      "spares": {"valve_packings": 10, "seals": 5, "plungers": 15}
+      "spares": {"valve_packings": 10, "seals": 5, "plungers": 15},
+      "country": "United States",
+      "region": "Texas",
+      "area": "Eagle Ford"
     }
   ],
   "proximity_threshold_miles": 10.0,

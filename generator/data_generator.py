@@ -29,6 +29,36 @@ from schemas.config import SimulationConfig
 from schemas.crew import CrewData, Crew, Pump, Spares
 
 
+# Geographic hierarchy data: Country > Region > Area
+GEOGRAPHY_DATA = {
+    "United States": {
+        "Texas": ["Permian Basin", "Eagle Ford", "Barnett Shale"],
+        "North Dakota": ["Bakken", "Three Forks"],
+        "Oklahoma": ["SCOOP", "STACK", "Anadarko Basin"],
+        "New Mexico": ["Delaware Basin", "San Juan Basin"],
+        "Colorado": ["DJ Basin", "Piceance Basin"],
+    },
+    "Canada": {
+        "Alberta": ["Montney", "Duvernay", "Cardium"],
+        "British Columbia": ["Horn River", "Liard Basin"],
+        "Saskatchewan": ["Bakken", "Viking"],
+    }
+}
+
+
+def get_random_geography() -> tuple[str, str, str]:
+    """
+    Get a random geographic location (country, region, area).
+
+    Returns:
+        Tuple of (country, region, area)
+    """
+    country = random.choice(list(GEOGRAPHY_DATA.keys()))
+    region = random.choice(list(GEOGRAPHY_DATA[country].keys()))
+    area = random.choice(GEOGRAPHY_DATA[country][region])
+    return country, region, area
+
+
 def generate_crew_data(config: SimulationConfig) -> CrewData:
     """
     Generate randomized crew data based on configuration.
@@ -77,12 +107,18 @@ def generate_crew_data(config: SimulationConfig) -> CrewData:
         # Job duration
         job_duration = random.randint(config.min_job_duration, config.max_job_duration)
 
+        # Geographic location
+        country, region, area = get_random_geography()
+
         crew = Crew(
             crew_id=crew_id,
             job_duration_hours=job_duration,
             distance_to_crew_a=distance,
             pumps=pumps,
-            spares=spares
+            spares=spares,
+            country=country,
+            region=region,
+            area=area
         )
         crews.append(crew)
 
