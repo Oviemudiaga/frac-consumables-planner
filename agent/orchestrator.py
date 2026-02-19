@@ -30,7 +30,9 @@ from schemas.crew import CrewData, Spares
 from schemas.order import OrderPlan
 from tools.needs_calculator import calculate_needs
 from tools.inventory_reader import read_inventory
-from tools.order_planner import plan_order
+from tools.order_planner import plan_order, compute_cost_summary
+from tools.weather_checker import check_weather
+from tools.cost_calculator import load_cost_config
 from prompts.prompts import SYSTEM_PROMPT
 
 
@@ -156,14 +158,15 @@ def create_agent(model: str = "llama3"):
     return agent
 
 
-def _run_deterministic_pipeline(crew_data: CrewData) -> dict:
+def _run_deterministic_pipeline(crew_data: CrewData, weather_seed: int | None = 42) -> dict:
     """
     Run the tools in a deterministic sequence without relying on the LLM.
 
-    This is a fallback when the agent fails to complete the tool sequence.
+    Uses cost-optimized algorithm with weather and cost data.
 
     Args:
         crew_data: CrewData to analyze
+        weather_seed: Seed for reproducible weather data
 
     Returns:
         Dict with recommendation (str) and order_plan (OrderPlan)
@@ -186,21 +189,32 @@ def _run_deterministic_pipeline(crew_data: CrewData) -> dict:
     crew_a_spares = inventory_result["crew_a_spares"]
     nearby_crews = inventory_result["nearby_crews"]
 
-    # Step 3: Plan order
+    # Step 3: Get weather and cost data for cost-optimized planning
+    weather_data = check_weather.invoke({"crew_data": crew_data, "seed": weather_seed})
+    cost_config = load_cost_config()
+
+    # Step 4: Plan order (cost-optimized)
     order_plan = plan_order(
         needs=needs,
         crew_a_spares=crew_a_spares,
         nearby_crews=nearby_crews,
         crew_id="A",
-        job_duration_hours=crew_a.job_duration_hours
+        job_duration_hours=crew_a.job_duration_hours,
+        weather_data=weather_data,
+        cost_config=cost_config,
     )
 
     # Generate a recommendation summary
     recommendation = _generate_recommendation(order_plan, nearby_crews)
 
+    # Compute cost summary for UI display
+    cost_summary = compute_cost_summary(order_plan, nearby_crews, weather_data, cost_config)
+
     return {
         "recommendation": recommendation,
-        "order_plan": order_plan
+        "order_plan": order_plan,
+        "weather_data": weather_data,
+        "cost_summary": cost_summary,
     }
 
 
@@ -243,7 +257,7 @@ def _generate_recommendation(order_plan: OrderPlan, nearby_crews: list) -> str:
     return "\n".join(lines)
 
 
-def run_agent(agent, crew_data: CrewData) -> dict:
+def run_agent(agent, crew_data: CrewData, weather_seed: int | None = 42) -> dict:
     """
     Run the agent to generate an order plan.
 
@@ -302,7 +316,7 @@ def run_agent(agent, crew_data: CrewData) -> dict:
         if order_plan is None:
             # Agent didn't complete the sequence, fall back to deterministic
             print("Agent did not call plan_order_tool. Falling back to deterministic pipeline.")
-            return _run_deterministic_pipeline(crew_data)
+            return _run_deterministic_pipeline(crew_data, weather_seed)
 
         return {
             "recommendation": recommendation,
@@ -312,4 +326,4 @@ def run_agent(agent, crew_data: CrewData) -> dict:
     except Exception as e:
         # If agent fails entirely, fall back to deterministic pipeline
         print(f"Agent failed with error: {e}. Falling back to deterministic pipeline.")
-        return _run_deterministic_pipeline(crew_data)
+        return _run_deterministic_pipeline(crew_data, weather_seed)

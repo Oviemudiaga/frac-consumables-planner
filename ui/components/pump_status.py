@@ -14,6 +14,7 @@ import pandas as pd
 import streamlit as st
 
 from schemas.crew import CrewData, Crew
+from tools.inventory_reader import read_inventory
 
 
 def get_crew_geography(crew: Crew) -> tuple[str, str, str]:
@@ -240,9 +241,34 @@ def render_all_crews_status(crew_data: CrewData):
     # Health legend
     st.caption("🟢 Healthy (>1.5x job duration) | 🟡 Marginal (1-1.5x) | 🔴 Critical (<1x)")
 
-    # Render each filtered crew
+    # Render each filtered crew in a scrollable container
     if not filtered_crews:
         st.info("No crews selected. Use the filter above to select crews to display.")
     else:
-        for crew in filtered_crews:
-            render_crew_pump_card(crew, crew_data.consumables_per_pump)
+        with st.container(height=600):
+            for crew in filtered_crews:
+                render_crew_pump_card(crew, crew_data.consumables_per_pump)
+
+            # Nearby crews available spares
+            st.divider()
+            st.markdown("#### Nearby Crews — Available for Crew A")
+            st.caption(f"Within {crew_data.proximity_threshold_miles} miles (after their own needs)")
+
+            inventory = read_inventory(crew_data)
+            if not inventory["nearby_crews"]:
+                st.info("No nearby crews within proximity threshold")
+            else:
+                nearby_rows = []
+                for nearby in inventory["nearby_crews"]:
+                    nearby_crew = next((c for c in crew_data.crews if c.crew_id == nearby["crew_id"]), None)
+                    area = getattr(nearby_crew, "area", "") if nearby_crew else ""
+                    nearby_rows.append({
+                        "Crew": nearby["crew_id"],
+                        "Distance (mi)": nearby["distance"],
+                        "Area": area,
+                        "Valve Packings": nearby["available"]["valve_packings"],
+                        "Seals": nearby["available"]["seals"],
+                        "Plungers": nearby["available"]["plungers"],
+                    })
+                df_nearby = pd.DataFrame(nearby_rows)
+                st.dataframe(df_nearby, use_container_width=True, hide_index=True)

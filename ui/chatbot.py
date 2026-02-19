@@ -1,14 +1,16 @@
 """
 Core chatbot logic for the frac consumables planner.
 
-This module provides context-aware chatbot functionality that can answer
-questions about pump status and job planning based on the current data state.
+This module provides context-aware chatbot functionality with intent routing.
+Messages are classified into three intents:
+- STATUS: LLM answers freely about pump health
+- ORDER: Deterministic order pipeline, no LLM
+- COST: Full deterministic pipeline (order -> transfer -> cost), no LLM
 
 Usage:
-    from ui.chatbot import generate_chat_response, build_pump_status_context
+    from ui.chatbot import handle_chat_message, ChatMessage, ChatIntent
 
-    context = build_pump_status_context(crew_data)
-    response = generate_chat_response(model, context, chat_history, user_message)
+    response, intent = handle_chat_message(crew_data, message, history)
 """
 
 from dataclasses import dataclass, field
@@ -23,6 +25,16 @@ from schemas.chatbot_response import ChatbotResponse, OrderRecommendation
 from tools.needs_calculator import calculate_needs
 from tools.inventory_reader import read_inventory
 from tools.order_planner import plan_order
+from agent.orchestrator import _generate_recommendation
+from agent.transfer_coordinator import _run_deterministic_transfer
+from agent.cost_analyzer import _run_deterministic_cost_analysis
+from tools.route_planner import format_transfer_plan
+from tools.cost_calculator import format_cost_comparison, load_cost_config
+from tools.weather_checker import check_weather
+from ui.intent_router import classify_intent, ChatIntent
+
+# Fixed seed for stable weather within a session
+DEFAULT_WEATHER_SEED = 42
 from prompts.chatbot_prompts import (
     CHATBOT_BASE_PROMPT,
     PUMP_STATUS_CONTEXT_TEMPLATE,
@@ -376,3 +388,151 @@ def generate_structured_chat_response(
         return answer
     except Exception as e:
         return f"I encountered an error: {str(e)}. Please make sure Ollama is running."
+
+
+def run_order_pipeline(
+    crew_data: CrewData,
+    weather_seed: int = DEFAULT_WEATHER_SEED,
+) -> tuple[OrderPlan | None, str]:
+    """
+    Run the cost-optimized order pipeline and return formatted output.
+
+    Uses weather and cost data to make cost-optimal borrow vs order decisions.
+
+    Args:
+        crew_data: Current crew data
+        weather_seed: Seed for reproducible weather data
+
+    Returns:
+        Tuple of (OrderPlan, formatted_response_string)
+    """
+    crew_a = None
+    for crew in crew_data.crews:
+        if crew.distance_to_crew_a is None:
+            crew_a = crew
+            break
+
+    if crew_a is None:
+        return None, "Error: Crew A not found in data."
+
+    needs = calculate_needs(crew_data, "A")
+    inventory = read_inventory(crew_data)
+    weather_data = check_weather.invoke({"crew_data": crew_data, "seed": weather_seed})
+    cost_config = load_cost_config()
+
+    order_plan = plan_order(
+        needs=needs,
+        crew_a_spares=crew_a.spares,
+        nearby_crews=inventory["nearby_crews"],
+        crew_id=crew_a.crew_id,
+        job_duration_hours=crew_a.job_duration_hours,
+        weather_data=weather_data,
+        cost_config=cost_config,
+    )
+
+    formatted = _generate_recommendation(order_plan, inventory["nearby_crews"])
+    return order_plan, formatted
+
+
+def run_cost_pipeline(
+    crew_data: CrewData,
+    order_plan: OrderPlan | None = None,
+    weather_seed: int = DEFAULT_WEATHER_SEED,
+) -> str:
+    """
+    Run the full cost pipeline: order -> transfer -> cost.
+
+    Args:
+        crew_data: Current crew data
+        order_plan: Pre-existing order plan (if available)
+        weather_seed: Seed for reproducible weather data
+
+    Returns:
+        Formatted cost analysis string
+    """
+    # Step 1: Ensure we have an order plan
+    if order_plan is None:
+        order_plan, _ = run_order_pipeline(crew_data, weather_seed)
+        if order_plan is None:
+            return "Error: Could not generate order plan."
+
+    # Step 2: Run transfer pipeline (uses same weather seed)
+    transfer_result = _run_deterministic_transfer(order_plan, crew_data, weather_seed)
+    transfer_plan = transfer_result["transfer_plan"]
+
+    # Step 3: Run cost analysis
+    cost_result = _run_deterministic_cost_analysis(order_plan, transfer_plan)
+
+    # Step 4: Format output
+    lines = []
+
+    # Include order summary
+    inventory = read_inventory(crew_data)
+    lines.append(_generate_recommendation(order_plan, inventory["nearby_crews"]))
+    lines.append("")
+
+    # Include transfer summary if there are borrows
+    transfer_summary = transfer_result.get("summary", "")
+    if transfer_summary and "No transfers needed" not in transfer_summary:
+        lines.append("---")
+        lines.append("")
+        lines.append(format_transfer_plan(transfer_plan))
+        lines.append("")
+
+    # Include cost comparison
+    lines.append("---")
+    lines.append("")
+    lines.append(format_cost_comparison(cost_result["comparison"]))
+
+    return "\n".join(lines)
+
+
+def handle_chat_message(
+    crew_data: CrewData,
+    user_message: str,
+    chat_history: list[ChatMessage],
+    order_plan: OrderPlan | None = None,
+    selected_model: str = "llama3",
+) -> tuple[str, ChatIntent]:
+    """
+    Route a user message to the appropriate handler based on intent.
+
+    For status: LLM responds freely with pump data context.
+    For order: Deterministic pipeline output, no LLM.
+    For cost: Full deterministic pipeline output, no LLM.
+
+    Args:
+        crew_data: Current crew data
+        user_message: The user's chat message
+        chat_history: Previous chat messages
+        order_plan: Pre-existing order plan from session state (if available)
+        selected_model: Ollama model name for LLM (status intent only)
+
+    Returns:
+        Tuple of (response_string, detected_intent)
+    """
+    intent = classify_intent(user_message)
+
+    if intent == ChatIntent.ORDER:
+        if order_plan is not None:
+            inventory = read_inventory(crew_data)
+            response = _generate_recommendation(order_plan, inventory["nearby_crews"])
+        else:
+            _, response = run_order_pipeline(crew_data)
+        return response, intent
+
+    elif intent == ChatIntent.COST:
+        response = run_cost_pipeline(crew_data, order_plan)
+        return response, intent
+
+    else:
+        # STATUS intent: LLM answers freely with pump context
+        system_prompt = build_pump_status_context(crew_data)
+        llm = create_chatbot_llm(model=selected_model)
+        response = generate_chat_response(
+            llm=llm,
+            system_prompt=system_prompt,
+            chat_history=chat_history,
+            user_message=user_message
+        )
+        return response, intent
