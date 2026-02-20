@@ -120,6 +120,10 @@ def render_settings_panel():
             st.caption("Generate new random data")
             if st.button("Generate New Data", use_container_width=True):
                 st.session_state.show_generator = True
+            if st.button("Reset Session", use_container_width=True, type="secondary"):
+                for key in list(st.session_state.keys()):
+                    del st.session_state[key]
+                st.rerun()
 
         st.divider()
 
