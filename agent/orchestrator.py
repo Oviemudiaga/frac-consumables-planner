@@ -318,9 +318,19 @@ def run_agent(agent, crew_data: CrewData, weather_seed: int | None = 42) -> dict
             print("Agent did not call plan_order_tool. Falling back to deterministic pipeline.")
             return _run_deterministic_pipeline(crew_data, weather_seed)
 
+        # Compute cost summary for the LLM-generated plan
+        inventory_result = read_inventory(crew_data)
+        weather_data = check_weather.invoke({"crew_data": crew_data, "seed": weather_seed})
+        cost_config = load_cost_config()
+        cost_summary = compute_cost_summary(
+            order_plan, inventory_result["nearby_crews"], weather_data, cost_config
+        )
+
         return {
             "recommendation": recommendation,
-            "order_plan": order_plan
+            "order_plan": order_plan,
+            "weather_data": weather_data,
+            "cost_summary": cost_summary,
         }
 
     except Exception as e:

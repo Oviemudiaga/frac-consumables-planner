@@ -199,7 +199,7 @@ def _apply_cost_optimized_logic(
         weather_mult = _get_crew_weather_multiplier(weather_data, crew["crew_id"])
         borrow_cost = _calculate_borrow_cost_per_unit(
             distance=crew["distance"],
-            quantity=available,
+            quantity=min(available, remaining),
             weather_multiplier=weather_mult,
             cost_config=cost_config,
         )
@@ -288,7 +288,7 @@ def compute_cost_summary(
             weather_mult = _get_crew_weather_multiplier(weather_data, crew["crew_id"])
             borrow_cost = _calculate_borrow_cost_per_unit(
                 distance=crew["distance"],
-                quantity=available,
+                quantity=min(available, shortfall),
                 weather_multiplier=weather_mult,
                 cost_config=cost_config,
             )
