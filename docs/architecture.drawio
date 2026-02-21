@@ -1,0 +1,232 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36" version="29.5.1">
+  <diagram id="agent-architecture" name="Agent Architecture">
+    <mxGraphModel dx="182083" dy="134016" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="682FzgvxKvg2nPUIRDxl-4" connectable="0" parent="1" style="group" value="" vertex="1">
+          <mxGeometry height="760" width="1140" x="20" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="title" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=28;fontStyle=1;fontColor=#1a1a2e;align=center;verticalAlign=middle;whiteSpace=wrap;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="Frac Consumables Planner — Multi-Agent Architecture" vertex="1">
+          <mxGeometry height="42.696629213483135" width="791.6666666666666" x="174.16666666666666" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=13;fontColor=#6c757d;align=center;verticalAlign=middle;whiteSpace=wrap;fontStyle=2;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="Powered by LangChain + LangGraph  |  ReAct Pattern  |  Ollama" vertex="1">
+          <mxGeometry height="25.617977528089884" width="633.3333333333335" x="253.33333333333337" y="38.426966292134836" as="geometry" />
+        </mxCell>
+        <mxCell id="682FzgvxKvg2nPUIRDxl-3" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="ui-group" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fillColor=#f5f5f5;strokeColor=#666666;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="agent-bg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ui-group" parent="682FzgvxKvg2nPUIRDxl-4" style="swimlane;startSize=30;fillColor=#f5f5f5;strokeColor=#cccccc;rounded=1;arcSize=8;fontSize=12;fontColor=#555555;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="USER INTERFACE —  Streamlit" vertex="1">
+          <mxGeometry height="102.47191011235954" width="1013.3333333333335" x="63.33333333333334" y="76.85393258426967" as="geometry">
+            <mxRectangle height="30" width="260" x="160" y="110" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ui-pump" parent="ui-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#dee2e6;shadow=1;fontSize=12;arcSize=20;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;Pump Status&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;color:#888&quot;&gt;Health monitoring&lt;/font&gt;" vertex="1">
+          <mxGeometry height="46.966292134831455" width="126.66666666666669" x="31.66666666666667" y="38.426966292134836" as="geometry" />
+        </mxCell>
+        <mxCell id="ui-job" parent="ui-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#dee2e6;shadow=1;fontSize=12;arcSize=20;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;Job Planning&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;color:#888&quot;&gt;Generate order plans&lt;/font&gt;" vertex="1">
+          <mxGeometry height="46.966292134831455" width="126.66666666666669" x="190.00000000000003" y="38.426966292134836" as="geometry" />
+        </mxCell>
+        <mxCell id="ui-chat" parent="ui-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f4fd;strokeColor=#90caf9;shadow=1;fontSize=12;arcSize=20;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;Chatbot Assistant&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;color:#888&quot;&gt;Intent-driven AI chat&lt;/font&gt;" vertex="1">
+          <mxGeometry height="46.966292134831455" width="142.5" x="348.33333333333337" y="38.426966292134836" as="geometry" />
+        </mxCell>
+        <mxCell id="intent-router" parent="ui-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#ffb74d;shadow=1;fontSize=11;arcSize=20;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;Intent Router&lt;/b&gt;" vertex="1">
+          <mxGeometry height="29.88764044943819" width="102.91666666666669" x="530.4166666666667" y="34.15730337078651" as="geometry" />
+        </mxCell>
+        <mxCell id="intent-status" parent="ui-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#81c784;fontSize=10;fontStyle=1;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="STATUS" vertex="1">
+          <mxGeometry height="21.348314606741567" width="55.41666666666667" x="657.0833333333334" y="29.88764044943819" as="geometry" />
+        </mxCell>
+        <mxCell id="intent-order" parent="ui-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce4ec;strokeColor=#e57373;fontSize=10;fontStyle=1;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="ORDER" vertex="1">
+          <mxGeometry height="21.348314606741567" width="55.41666666666667" x="720.4166666666667" y="29.88764044943819" as="geometry" />
+        </mxCell>
+        <mxCell id="intent-cost" parent="ui-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8e1;strokeColor=#ffd54f;fontSize=10;fontStyle=1;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="COST" vertex="1">
+          <mxGeometry height="21.348314606741567" width="55.41666666666667" x="783.7500000000001" y="29.88764044943819" as="geometry" />
+        </mxCell>
+        <mxCell id="chat-to-router" edge="1" parent="ui-group" source="ui-chat" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#ffb74d;strokeWidth=1.5;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="intent-router">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="router-to-status" edge="1" parent="ui-group" source="intent-router" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#81c784;strokeWidth=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="intent-status">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="agent-bg" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#1A1A2E,#FFFFFF);strokeColor=#16213e;arcSize=4;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="" vertex="1">
+          <mxGeometry height="409.88764044943815" width="1140" y="213.48314606741567" as="geometry" />
+        </mxCell>
+        <mxCell id="agent-layer-title" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=16;fontStyle=1;fontColor=#e0e0e0;align=left;verticalAlign=middle;letterSpacing=3;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="MULTI-AGENT ORCHESTRATION" vertex="1">
+          <mxGeometry height="25.617977528089884" width="316.66666666666674" x="31.66666666666667" y="222.02247191011233" as="geometry" />
+        </mxCell>
+        <mxCell id="agent-layer-badge" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f3460;strokeColor=#533483;fontSize=10;fontColor=#e0e0e0;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="LangGraph ReAct Agents" vertex="1">
+          <mxGeometry height="21.348314606741567" width="126.66666666666669" x="981.6666666666667" y="222.02247191011233" as="geometry" />
+        </mxCell>
+        <mxCell id="llm-node" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1565c0;strokeColor=#42a5f5;strokeWidth=2;shadow=1;fontSize=12;fontColor=#ffffff;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b style=&quot;font-size:14px;&quot;&gt;🧠 LLM Backbone&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:12px;&quot;&gt;Ollama&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px; color: rgb(170, 170, 170);&quot;&gt;Local inference&lt;/font&gt;" vertex="1">
+          <mxGeometry height="76.85393258426967" width="253.33333333333337" x="443.33333333333337" y="256.1797752808988" as="geometry" />
+        </mxCell>
+        <mxCell id="agent1-card" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2d1b1b;strokeColor=#e74c3c;strokeWidth=2;arcSize=8;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="" vertex="1">
+          <mxGeometry height="239.10112359550553" width="300.8333333333333" x="31.66666666666667" y="358.6516853932583" as="geometry" />
+        </mxCell>
+        <mxCell id="agent1-header" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=14;fontColor=#ffffff;align=center;verticalAlign=middle;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;font style=&quot;font-size:16px;&quot;&gt;&lt;b&gt;Orchestrator Agent&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px;color:#ffcdd2;&quot;&gt;Plans consumable orders for frac crews&lt;/font&gt;" vertex="1">
+          <mxGeometry height="38.426966292134836" width="269.16666666666674" x="47.5" y="367.19101123595493" as="geometry" />
+        </mxCell>
+        <mxCell id="agent1-react" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e74c3c;strokeColor=none;fontSize=10;fontColor=#ffffff;fontStyle=1;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="⚡ ReAct Pattern" vertex="1">
+          <mxGeometry height="18.78651685393258" width="87.08333333333333" x="134.58333333333337" y="409.88764044943815" as="geometry" />
+        </mxCell>
+        <mxCell id="a1-t1" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d2020;strokeColor=#e57373;fontSize=10;fontColor=#ffcdd2;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;calculate_needs&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Pumps × consumables analysis&lt;/font&gt;" vertex="1">
+          <mxGeometry height="34.15730337078651" width="134.58333333333337" x="47.5" y="439.77528089887636" as="geometry" />
+        </mxCell>
+        <mxCell id="a1-t2" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d2020;strokeColor=#e57373;fontSize=10;fontColor=#ffcdd2;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;read_inventory&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;On-hand + nearby crew spares&lt;/font&gt;" vertex="1">
+          <mxGeometry height="34.15730337078651" width="130.625" x="190" y="439.77528089887636" as="geometry" />
+        </mxCell>
+        <mxCell id="a1-t3" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d2020;strokeColor=#e57373;fontSize=10;fontColor=#ffcdd2;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;plan_order&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Cost-optimized borrow vs order&lt;/font&gt;" vertex="1">
+          <mxGeometry height="34.15730337078651" width="158.33333333333337" x="102.91666666666669" y="482.47191011235935" as="geometry" />
+        </mxCell>
+        <mxCell id="a1-output" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c0392b;strokeColor=none;fontSize=11;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;→ OrderPlan&lt;/b&gt;" vertex="1">
+          <mxGeometry height="23.91011235955056" width="102.91666666666669" x="130.625" y="529.4382022471909" as="geometry" />
+        </mxCell>
+        <mxCell id="agent2-card" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2d2010;strokeColor=#e67e22;strokeWidth=2;arcSize=8;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="" vertex="1">
+          <mxGeometry height="239.10112359550553" width="300.8333333333333" x="364.1666666666667" y="358.6516853932583" as="geometry" />
+        </mxCell>
+        <mxCell id="agent2-header" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=14;fontColor=#ffffff;align=center;verticalAlign=middle;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;font style=&quot;font-size:16px;&quot;&gt;&lt;b&gt;Transfer Coordinator&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px;color:#ffe0b2;&quot;&gt;Routes logistics between crews&lt;/font&gt;" vertex="1">
+          <mxGeometry height="38.426966292134836" width="269.16666666666674" x="380" y="367.19101123595493" as="geometry" />
+        </mxCell>
+        <mxCell id="agent2-react" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e67e22;strokeColor=none;fontSize=10;fontColor=#ffffff;fontStyle=1;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="⚡ ReAct Pattern" vertex="1">
+          <mxGeometry height="18.78651685393258" width="87.08333333333333" x="467.08333333333337" y="409.88764044943815" as="geometry" />
+        </mxCell>
+        <mxCell id="a2-t1" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d2a10;strokeColor=#ffb74d;fontSize=10;fontColor=#ffe0b2;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;check_weather&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;All crew locations&lt;/font&gt;" vertex="1">
+          <mxGeometry height="34.15730337078651" width="122.70833333333334" x="380" y="439.77528089887636" as="geometry" />
+        </mxCell>
+        <mxCell id="a2-t2" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d2a10;strokeColor=#ffb74d;fontSize=10;fontColor=#ffe0b2;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;get_route_weather&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Per-segment conditions&lt;/font&gt;" vertex="1">
+          <mxGeometry height="34.15730337078651" width="138.54166666666666" x="510.62500000000006" y="439.77528089887636" as="geometry" />
+        </mxCell>
+        <mxCell id="a2-t3" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d2a10;strokeColor=#ffb74d;fontSize=10;fontColor=#ffe0b2;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;plan_route&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Optimized multi-crew route&lt;/font&gt;" vertex="1">
+          <mxGeometry height="34.15730337078651" width="158.33333333333337" x="435.4166666666667" y="482.47191011235935" as="geometry" />
+        </mxCell>
+        <mxCell id="a2-output" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d35400;strokeColor=none;fontSize=11;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;→ TransferPlan&lt;/b&gt;" vertex="1">
+          <mxGeometry height="23.91011235955056" width="102.91666666666669" x="463.1250000000001" y="529.4382022471909" as="geometry" />
+        </mxCell>
+        <mxCell id="agent3-card" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2d2800;strokeColor=#f39c12;strokeWidth=2;arcSize=8;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="" vertex="1">
+          <mxGeometry height="239.10112359550553" width="300.8333333333333" x="696.6666666666666" y="358.6516853932583" as="geometry" />
+        </mxCell>
+        <mxCell id="agent3-header" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=14;fontColor=#ffffff;align=center;verticalAlign=middle;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;font style=&quot;font-size:16px;&quot;&gt;&lt;b&gt;Cost Analyzer&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px;color:#fff9c4;&quot;&gt;Borrow vs order cost optimization&lt;/font&gt;" vertex="1">
+          <mxGeometry height="38.426966292134836" width="269.16666666666674" x="712.5" y="367.19101123595493" as="geometry" />
+        </mxCell>
+        <mxCell id="agent3-react" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f39c12;strokeColor=none;fontSize=10;fontColor=#ffffff;fontStyle=1;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="⚡ ReAct Pattern" vertex="1">
+          <mxGeometry height="18.78651685393258" width="87.08333333333333" x="799.5833333333334" y="409.88764044943815" as="geometry" />
+        </mxCell>
+        <mxCell id="a3-t1" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d3500;strokeColor=#ffd54f;fontSize=10;fontColor=#fff9c4;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;calculate_borrow_cost&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Travel + labor costs&lt;/font&gt;" vertex="1">
+          <mxGeometry height="34.15730337078651" width="130.625" x="712.5" y="439.77528089887636" as="geometry" />
+        </mxCell>
+        <mxCell id="a3-t2" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d3500;strokeColor=#ffd54f;fontSize=10;fontColor=#fff9c4;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;calculate_order_cost&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Parts + shipping costs&lt;/font&gt;" vertex="1">
+          <mxGeometry height="34.15730337078651" width="130.625" x="851.0416666666667" y="439.77528089887636" as="geometry" />
+        </mxCell>
+        <mxCell id="a3-t3" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d3500;strokeColor=#ffd54f;fontSize=10;fontColor=#fff9c4;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;compare_costs&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Recommends cheapest option&lt;/font&gt;" vertex="1">
+          <mxGeometry height="34.15730337078651" width="158.33333333333337" x="767.9166666666667" y="482.47191011235935" as="geometry" />
+        </mxCell>
+        <mxCell id="a3-output" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e67700;strokeColor=none;fontSize=11;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;→ CostBreakdown&lt;/b&gt;" vertex="1">
+          <mxGeometry height="23.91011235955056" width="102.91666666666669" x="795.625" y="529.4382022471909" as="geometry" />
+        </mxCell>
+        <mxCell id="flow-1-2" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="a1-output" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#ffffff;strokeWidth=3;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="agent2-card" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="340.41666666666686" y="541.3932584269662" />
+              <mxPoint x="340.41666666666686" y="478.20224719101105" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow-1-2-label" connectable="0" parent="flow-1-2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fillColor=#1a1a2e;rounded=1;" value="&lt;font color=&quot;#ffffff&quot; style=&quot;font-size:10px;&quot;&gt;OrderPlan&lt;/font&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.1" as="offset" />
+        </mxCell>
+        <mxCell id="flow-2-3" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="a2-output" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#ffffff;strokeWidth=3;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="agent3-card" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="680.8333333333337" y="541.3932584269662" />
+              <mxPoint x="680.8333333333337" y="478.20224719101105" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow-2-3-label" connectable="0" parent="flow-2-3" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fillColor=#1a1a2e;rounded=1;" value="&lt;font color=&quot;#ffffff&quot; style=&quot;font-size:10px;&quot;&gt;TransferPlan&lt;/font&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.1" as="offset" />
+        </mxCell>
+        <mxCell id="llm-to-a1" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="llm-node" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#42a5f5;strokeWidth=2;dashed=1;dashPattern=5 3;entryX=0.5;entryY=0;entryDx=0;entryDy=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="agent1-card" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="llm-to-a2" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="llm-node" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#42a5f5;strokeWidth=2;dashed=1;dashPattern=5 3;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="agent2-card" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="llm-to-a3" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="llm-node" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#42a5f5;strokeWidth=2;dashed=1;dashPattern=5 3;entryX=0.5;entryY=0;entryDx=0;entryDy=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="agent3-card" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="react-box" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f3460;strokeColor=#533483;strokeWidth=2;arcSize=10;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="" vertex="1">
+          <mxGeometry height="128.0898876404494" width="95" x="1029.1666666666667" y="273.25842696629206" as="geometry" />
+        </mxCell>
+        <mxCell id="react-title" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=11;fontColor=#e0e0e0;align=center;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;ReAct Loop&lt;/b&gt;" vertex="1">
+          <mxGeometry height="17.078651685393254" width="79.16666666666669" x="1037.0833333333333" y="277.5280898876405" as="geometry" />
+        </mxCell>
+        <mxCell id="react-reason" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7c4dff;strokeColor=none;fontSize=10;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="💭 Reason" vertex="1">
+          <mxGeometry height="21.348314606741567" width="63.33333333333334" x="1045" y="303.1460674157303" as="geometry" />
+        </mxCell>
+        <mxCell id="react-act" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00c853;strokeColor=none;fontSize=10;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="🔧 Act" vertex="1">
+          <mxGeometry height="21.348314606741567" width="63.33333333333334" x="1045" y="333.0337078651685" as="geometry" />
+        </mxCell>
+        <mxCell id="react-observe" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ff6d00;strokeColor=none;fontSize=10;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="👁 Observe" vertex="1">
+          <mxGeometry height="21.348314606741567" width="63.33333333333334" x="1045" y="362.92134831460663" as="geometry" />
+        </mxCell>
+        <mxCell id="react-loop" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="react-observe" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#b388ff;strokeWidth=1.5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;curved=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="react-reason" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1120.208333333333" y="374.0224719101122" />
+              <mxPoint x="1120.208333333333" y="314.247191011236" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="react-arrow1" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="react-reason" style="endArrow=classic;strokeColor=#b388ff;strokeWidth=1.5;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="react-act" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="react-arrow2" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="react-act" style="endArrow=classic;strokeColor=#b388ff;strokeWidth=1.5;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="react-observe" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="data-group" parent="682FzgvxKvg2nPUIRDxl-4" style="swimlane;startSize=25;fillColor=#eceff1;strokeColor=#b0bec5;rounded=1;arcSize=8;fontSize=11;fontColor=#546e7a;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="DATA LAYER" vertex="1">
+          <mxGeometry height="102.47191011235954" width="411.66666666666674" x="31.66666666666667" y="657.5280898876402" as="geometry" />
+        </mxCell>
+        <mxCell id="data-crew" parent="data-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b0bec5;shadow=0;fontSize=11;arcSize=15;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;Crew Data&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#888;&quot;&gt;JSON scenarios&lt;/font&gt;" vertex="1">
+          <mxGeometry height="46.966292134831455" width="102.91666666666669" x="15.833333333333336" y="34.15730337078651" as="geometry" />
+        </mxCell>
+        <mxCell id="data-cost" parent="data-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b0bec5;shadow=0;fontSize=11;arcSize=15;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;Cost Config&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#888;&quot;&gt;Pricing rules&lt;/font&gt;" vertex="1">
+          <mxGeometry height="46.966292134831455" width="102.91666666666669" x="142.49999999999997" y="34.15730337078651" as="geometry" />
+        </mxCell>
+        <mxCell id="data-schema" parent="data-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b0bec5;shadow=0;fontSize=11;arcSize=15;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;Pydantic Models&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#888;&quot;&gt;Type-safe schemas&lt;/font&gt;" vertex="1">
+          <mxGeometry height="46.966292134831455" width="118.75000000000003" x="269.16666666666674" y="34.15730337078651" as="geometry" />
+        </mxCell>
+        <mxCell id="output-group" parent="682FzgvxKvg2nPUIRDxl-4" style="swimlane;startSize=25;fillColor=#e8f5e9;strokeColor=#81c784;rounded=1;arcSize=8;fontSize=11;fontColor=#2e7d32;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="STRUCTURED OUTPUT" vertex="1">
+          <mxGeometry height="102.47191011235954" width="490.83333333333337" x="490.83333333333337" y="657.5280898876402" as="geometry" />
+        </mxCell>
+        <mxCell id="out-order" parent="output-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#66bb6a;fontSize=11;arcSize=15;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;OrderPlan&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#666;&quot;&gt;What to borrow &amp; order&lt;/font&gt;" vertex="1">
+          <mxGeometry height="46.966292134831455" width="126.66666666666669" x="15.833333333333336" y="34.15730337078651" as="geometry" />
+        </mxCell>
+        <mxCell id="out-transfer" parent="output-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#66bb6a;fontSize=11;arcSize=15;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;TransferPlan&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#666;&quot;&gt;Routes &amp; timing&lt;/font&gt;" vertex="1">
+          <mxGeometry height="46.966292134831455" width="126.66666666666669" x="166.25000000000003" y="34.15730337078651" as="geometry" />
+        </mxCell>
+        <mxCell id="out-cost" parent="output-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#66bb6a;fontSize=11;arcSize=15;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;CostBreakdown&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#666;&quot;&gt;Savings &amp; recommendation&lt;/font&gt;" vertex="1">
+          <mxGeometry height="46.966292134831455" width="150.41666666666666" x="316.66666666666674" y="34.15730337078651" as="geometry" />
+        </mxCell>
+        <mxCell id="out-flow-1" edge="1" parent="output-group" source="out-order" style="endArrow=classic;strokeColor=#66bb6a;strokeWidth=2;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="out-transfer" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="out-flow-2" edge="1" parent="output-group" source="out-transfer" style="endArrow=classic;strokeColor=#66bb6a;strokeWidth=2;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="out-cost" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="agents-to-output" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#81c784;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=8 4;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="570" y="640.4494382022469" />
+              <mxPoint x="736.2500000000001" y="640.4494382022469" />
+            </Array>
+            <mxPoint x="570" y="623.3707865168539" as="sourcePoint" />
+            <mxPoint x="736.2500000000001" y="657.5280898876402" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="weather-note" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a1a2e;strokeColor=#1565c0;strokeWidth=1;dashed=1;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;font style=&quot;font-size:10px;color:#90caf9;&quot;&gt;🌦 Weather Multipliers&lt;br&gt;Clear 1.0× → Storm 2.0×&lt;br&gt;Adjusts travel costs&lt;/font&gt;" vertex="1">
+          <mxGeometry height="42.696629213483135" width="134.58333333333337" x="1005.4166666666666" y="418.42696629213475" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

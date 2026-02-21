@@ -6,16 +6,33 @@ This module defines the core data models:
 - Spares: Spare parts inventory for a crew
 - Crew: A fracturing crew with pumps and spares
 - CrewData: Root model containing all crews
+- Coordinates: Geographic coordinates for location
 
 Usage:
-    from schemas.crew import Crew, CrewData, Pump, Spares
+    from schemas.crew import Crew, CrewData, Pump, Spares, Coordinates
 
     pump = Pump(pump_id=1, valve_packings_life=50, seals_life=60, plungers_life=70)
     spares = Spares(valve_packings=10, seals=5, plungers=3)
-    crew = Crew(crew_id="A", job_duration_hours=60, pumps=[pump], spares=spares)
+    coords = Coordinates(lat=31.9686, lng=-102.0779)
+    crew = Crew(crew_id="A", job_duration_hours=60, pumps=[pump], spares=spares, coordinates=coords)
 """
 
 from pydantic import BaseModel, Field
+
+
+class Coordinates(BaseModel):
+    """Geographic coordinates for a location."""
+
+    lat: float = Field(
+        ge=-90.0,
+        le=90.0,
+        description="Latitude"
+    )
+    lng: float = Field(
+        ge=-180.0,
+        le=180.0,
+        description="Longitude"
+    )
 
 
 class Pump(BaseModel):
@@ -47,6 +64,11 @@ class Crew(BaseModel):
     country: str = Field(default="United States", description="Country where crew is located")
     region: str = Field(default="Texas", description="Region/state within country")
     area: str = Field(default="Permian Basin", description="Specific area/basin within region")
+    # Coordinates for route planning
+    coordinates: Coordinates | None = Field(
+        default=None,
+        description="Geographic coordinates for route planning"
+    )
 
 
 class CrewData(BaseModel):

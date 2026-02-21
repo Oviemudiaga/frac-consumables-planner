@@ -5,6 +5,7 @@
       "crew_id": "A",
       "job_duration_hours": 60,
       "distance_to_crew_a": null,
+      "coordinates": {"lat": 31.9686, "lng": -102.0779},
       "pumps": [
         {"pump_id": 1, "valve_packings_life": 45, "seals_life": 55, "plungers_life": 70},
         {"pump_id": 2, "valve_packings_life": 50, "seals_life": 48, "plungers_life": 65},
@@ -20,6 +21,7 @@
       "crew_id": "B",
       "job_duration_hours": 45,
       "distance_to_crew_a": 1.5,
+      "coordinates": {"lat": 31.9800, "lng": -102.0900},
       "pumps": [
         {"pump_id": 1, "valve_packings_life": 60, "seals_life": 65, "plungers_life": 80},
         {"pump_id": 2, "valve_packings_life": 55, "seals_life": 42, "plungers_life": 75},
@@ -34,6 +36,7 @@
       "crew_id": "C",
       "job_duration_hours": 40,
       "distance_to_crew_a": 5.0,
+      "coordinates": {"lat": 32.0100, "lng": -102.1200},
       "pumps": [
         {"pump_id": 1, "valve_packings_life": 70, "seals_life": 75, "plungers_life": 85},
         {"pump_id": 2, "valve_packings_life": 65, "seals_life": 72, "plungers_life": 90},
@@ -48,6 +51,7 @@
       "crew_id": "D",
       "job_duration_hours": 55,
       "distance_to_crew_a": 9.0,
+      "coordinates": {"lat": 32.0500, "lng": -102.1800},
       "pumps": [
         {"pump_id": 1, "valve_packings_life": 48, "seals_life": 62, "plungers_life": 70},
         {"pump_id": 2, "valve_packings_life": 52, "seals_life": 50, "plungers_life": 65},
@@ -63,6 +67,7 @@
       "crew_id": "E",
       "job_duration_hours": 50,
       "distance_to_crew_a": 12.0,
+      "coordinates": {"lat": 32.1000, "lng": -102.2500},
       "pumps": [
         {"pump_id": 1, "valve_packings_life": 80, "seals_life": 85, "plungers_life": 90},
         {"pump_id": 2, "valve_packings_life": 75, "seals_life": 88, "plungers_life": 95},

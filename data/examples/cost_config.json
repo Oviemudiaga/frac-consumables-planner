@@ -1,0 +1,26 @@
+{
+  "travel": {
+    "cost_per_mile": 2.50,
+    "cost_per_hour_labor": 75.00,
+    "average_speed_mph": 30
+  },
+  "consumables": {
+    "valve_packings": {
+      "unit_price": 150.00,
+      "supplier_lead_time_days": 2
+    },
+    "seals": {
+      "unit_price": 85.00,
+      "supplier_lead_time_days": 1
+    },
+    "plungers": {
+      "unit_price": 250.00,
+      "supplier_lead_time_days": 3
+    }
+  },
+  "shipping": {
+    "base_cost": 50.00,
+    "per_unit_cost": 5.00,
+    "expedited_multiplier": 2.0
+  }
+}

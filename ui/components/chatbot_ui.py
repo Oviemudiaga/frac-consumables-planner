@@ -14,17 +14,8 @@ import streamlit as st
 
 from schemas.crew import CrewData
 from schemas.order import OrderPlan
-from tools.needs_calculator import calculate_needs
-from tools.inventory_reader import read_inventory
-from tools.order_planner import plan_order
-from ui.chatbot import (
-    ChatMessage,
-    build_pump_status_context,
-    build_job_planning_context,
-    create_chatbot_llm,
-    generate_chat_response,
-    generate_structured_chat_response,
-)
+from ui.chatbot import ChatMessage, handle_chat_message
+from ui.intent_router import ChatIntent
 
 
 def render_chatbot(
@@ -71,47 +62,24 @@ def render_chatbot(
         user_msg = ChatMessage(role="user", content=prompt)
         st.session_state.chat_history.append(user_msg)
 
-        # Build context based on current tab
-        if context_mode == "pump_status":
-            system_prompt = build_pump_status_context(crew_data)
-        else:
-            # Generate order_plan if not provided (ensures consistent recommendations)
-            if order_plan is None:
-                crew_a = next((c for c in crew_data.crews if c.distance_to_crew_a is None), None)
-                if crew_a:
-                    needs = calculate_needs(crew_data, "A")
-                    inventory = read_inventory(crew_data)
-                    order_plan = plan_order(
-                        needs=needs,
-                        crew_a_spares=crew_a.spares,
-                        nearby_crews=inventory["nearby_crews"],
-                        crew_id=crew_a.crew_id,
-                        job_duration_hours=crew_a.job_duration_hours
-                    )
-            system_prompt = build_job_planning_context(crew_data, order_plan)
-
-        # Generate response
+        # Route through intent classifier
         with st.spinner("Thinking..."):
             try:
-                llm = create_chatbot_llm(model=selected_model)
-                # Use structured output for job planning to ensure consistent recommendations
-                if context_mode == "job_planning":
-                    response = generate_structured_chat_response(
-                        llm=llm,
-                        system_prompt=system_prompt,
-                        chat_history=st.session_state.chat_history[:-1],
-                        user_message=prompt,
-                        order_plan=order_plan  # Pass order_plan for programmatic recommendations
-                    )
-                else:
-                    response = generate_chat_response(
-                        llm=llm,
-                        system_prompt=system_prompt,
-                        chat_history=st.session_state.chat_history[:-1],
-                        user_message=prompt
-                    )
+                response, intent = handle_chat_message(
+                    crew_data=crew_data,
+                    user_message=prompt,
+                    chat_history=st.session_state.chat_history[:-1],
+                    order_plan=order_plan,
+                    selected_model=selected_model,
+                )
+
+                # Add intent badge for order/cost responses
+                if intent == ChatIntent.ORDER:
+                    response = "**[Order Plan]**\n\n" + response
+                elif intent == ChatIntent.COST:
+                    response = "**[Cost Analysis]**\n\n" + response
             except Exception as e:
-                response = f"Error connecting to Ollama: {str(e)}. Make sure Ollama is running with `ollama serve`."
+                response = f"Error: {str(e)}. Make sure Ollama is running with `ollama serve`."
 
         # Add assistant response to history
         assistant_msg = ChatMessage(role="assistant", content=response)

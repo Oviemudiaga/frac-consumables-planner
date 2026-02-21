@@ -27,12 +27,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from schemas.crew import CrewData
 from schemas.config import SimulationConfig
 from schemas.order import OrderPlan
-from tools.needs_calculator import calculate_needs
-from tools.inventory_reader import read_inventory
 from generator.data_generator import generate_crew_data, load_crew_data, save_crew_data
 from agent.orchestrator import create_agent, run_agent
 from ui.ollama_utils import get_available_models
-from ui.components.pump_status import render_all_crews_status, get_health_emoji
+from ui.components.pump_status import render_all_crews_status
 from ui.components.chatbot_ui import render_chatbot
 
 
@@ -50,7 +48,6 @@ def get_crew_a(crew_data: CrewData):
         if crew.distance_to_crew_a is None:
             return crew
     return None
-
 
 
 
@@ -75,6 +72,9 @@ def initialize_session_state():
         st.session_state.chat_history = []
     if "active_tab" not in st.session_state:
         st.session_state.active_tab = "pump_status"
+    # Weather seed for stable weather within a session
+    if "weather_seed" not in st.session_state:
+        st.session_state.weather_seed = 42
 
 
 def render_settings_panel():
@@ -120,6 +120,10 @@ def render_settings_panel():
             st.caption("Generate new random data")
             if st.button("Generate New Data", use_container_width=True):
                 st.session_state.show_generator = True
+            if st.button("Reset Session", use_container_width=True, type="secondary"):
+                for key in list(st.session_state.keys()):
+                    del st.session_state[key]
+                st.rerun()
 
         st.divider()
 
@@ -206,10 +210,12 @@ def render_pump_status_tab():
         render_all_crews_status(crew_data)
 
     with right_col:
+        # Pass order_plan so intent routing works on pump_status tab too
+        order_plan = st.session_state.agent_result.get("order_plan") if st.session_state.agent_result else None
         render_chatbot(
             crew_data=crew_data,
             context_mode="pump_status",
-            order_plan=None,
+            order_plan=order_plan,
             selected_model=st.session_state.selected_model
         )
 
@@ -217,12 +223,11 @@ def render_pump_status_tab():
 def render_job_planning_tab():
     """Render the Job Planning tab content."""
     crew_data = st.session_state.crew_data
-    crew_a = get_crew_a(crew_data)
 
     left_col, right_col = st.columns([3, 2])
 
     with left_col:
-        render_job_planning_panel(crew_data, crew_a)
+        render_order_plan_section(crew_data)
 
     with right_col:
         order_plan = st.session_state.agent_result.get("order_plan") if st.session_state.agent_result else None
@@ -232,90 +237,6 @@ def render_job_planning_tab():
             order_plan=order_plan,
             selected_model=st.session_state.selected_model
         )
-
-
-def render_job_planning_panel(crew_data: CrewData, crew_a):
-    """Render the job planning panel (left side of Job Planning tab)."""
-    st.subheader(f"Crew {crew_a.crew_id} - Job Plan")
-    st.metric("Job Duration", f"{crew_a.job_duration_hours} hours")
-
-    # Pump Status Table
-    st.markdown("#### Pump Status")
-    st.caption("🔴 = critical | 🟡 = marginal | 🟢 = healthy")
-
-    pump_data = []
-    for pump in crew_a.pumps:
-        pump_data.append({
-            "Pump #": pump.pump_id,
-            "Valve Packings": f"{pump.valve_packings_life}h {get_health_emoji(pump.valve_packings_life, crew_a.job_duration_hours)}",
-            "Seals": f"{pump.seals_life}h {get_health_emoji(pump.seals_life, crew_a.job_duration_hours)}",
-            "Plungers": f"{pump.plungers_life}h {get_health_emoji(pump.plungers_life, crew_a.job_duration_hours)}"
-        })
-
-    df_pumps = pd.DataFrame(pump_data)
-    st.dataframe(df_pumps, use_container_width=True, hide_index=True)
-
-    # Spares On Hand
-    st.markdown("#### Spares On Hand")
-    spares_col1, spares_col2, spares_col3 = st.columns(3)
-    with spares_col1:
-        st.metric("Valve Packings", crew_a.spares.valve_packings)
-    with spares_col2:
-        st.metric("Seals", crew_a.spares.seals)
-    with spares_col3:
-        st.metric("Plungers", crew_a.spares.plungers)
-
-    # Calculated Needs
-    st.markdown("#### Calculated Needs")
-    needs = calculate_needs(crew_data, "A")
-
-    needs_data = []
-    for consumable, data in needs.items():
-        display_name = consumable.replace("_", " ").title()
-        status = "⚠️ Needs attention" if data["total_needed"] > 0 else "✓ OK"
-        needs_data.append({
-            "Consumable": display_name,
-            "Pumps Needing": data["pumps_needing"],
-            "Total Needed": data["total_needed"],
-            "Status": status
-        })
-
-    df_needs = pd.DataFrame(needs_data)
-    st.dataframe(df_needs, use_container_width=True, hide_index=True)
-
-    # Nearby Crews Section
-    st.markdown("#### Nearby Crews")
-    st.caption(f"Within {crew_data.proximity_threshold_miles} miles")
-
-    inventory = read_inventory(crew_data)
-
-    if not inventory["nearby_crews"]:
-        st.info("No nearby crews within proximity threshold")
-    else:
-        for nearby in inventory["nearby_crews"]:
-            # Look up the crew to get geography info (with safe access)
-            nearby_crew = next((c for c in crew_data.crews if c.crew_id == nearby['crew_id']), None)
-            location_str = f" | {getattr(nearby_crew, 'area', '')}" if nearby_crew and hasattr(nearby_crew, 'area') else ""
-
-            with st.container(border=True):
-                st.markdown(f"**Crew {nearby['crew_id']}** — {nearby['distance']} mi{location_str}")
-                st.caption("Available Spares (after their own needs)")
-
-                avail_col1, avail_col2, avail_col3 = st.columns(3)
-                with avail_col1:
-                    val = nearby["available"]["valve_packings"]
-                    st.metric("Valve Packings", f"{val} {'✓' if val > 0 else ''}")
-                with avail_col2:
-                    val = nearby["available"]["seals"]
-                    st.metric("Seals", f"{val} {'✓' if val > 0 else ''}")
-                with avail_col3:
-                    val = nearby["available"]["plungers"]
-                    st.metric("Plungers", f"{val} {'✓' if val > 0 else ''}")
-
-    st.divider()
-
-    # Order Plan Section
-    render_order_plan_section(crew_data)
 
 
 def render_order_plan_section(crew_data: CrewData):
@@ -344,7 +265,7 @@ def render_order_plan_section(crew_data: CrewData):
         with st.spinner("Agent is analyzing data and generating order plan..."):
             try:
                 agent = create_agent(model=st.session_state.selected_model)
-                result = run_agent(agent, crew_data)
+                result = run_agent(agent, crew_data, weather_seed=st.session_state.weather_seed)
                 st.session_state.agent_result = result
                 st.session_state.show_order_plan = True
 
@@ -368,13 +289,7 @@ def render_order_plan_section(crew_data: CrewData):
     if st.session_state.show_order_plan and st.session_state.agent_result:
         result = st.session_state.agent_result
         order_plan: OrderPlan = result["order_plan"]
-
-        # Agent Recommendation
-        st.markdown("#### Agent Recommendation")
-        with st.container(border=True):
-            st.markdown(result["recommendation"])
-
-        st.markdown("#### Order Details")
+        cost_summary = result.get("cost_summary")
 
         display_names = {
             "valve_packings": "Valve Packings",
@@ -382,88 +297,96 @@ def render_order_plan_section(crew_data: CrewData):
             "plungers": "Plungers"
         }
 
-        # Display order table with editable quantities
+        # Consolidated order + cost table
+        st.markdown("#### Order Summary")
+        table_rows = []
         for item in order_plan.items:
-            with st.container(border=True):
-                col1, col2, col3, col4, col5 = st.columns([2, 1, 1, 2, 1])
+            name = display_names.get(item.consumable_name, item.consumable_name)
+            item_cost = cost_summary["items"].get(item.consumable_name, {}) if cost_summary else {}
 
-                with col1:
-                    status = "⚠️" if item.pumps_needing > 0 else "✓"
-                    st.markdown(f"**{display_names.get(item.consumable_name, item.consumable_name)}** {status}")
-                    st.caption(f"{item.pumps_needing} pumps need replacement")
+            # Borrow source info
+            if item.borrow_sources:
+                borrow_qty = sum(b.quantity for b in item.borrow_sources)
+                borrow_source = ", ".join(f"Crew {b.crew_id}" for b in item.borrow_sources)
+            else:
+                borrow_qty = 0
+                borrow_source = "-"
 
-                with col2:
-                    st.metric("Needed", item.total_needed)
+            # Cost columns
+            borrow_cpu = item_cost.get("borrow_cost_per_unit")
+            order_cpu = item_cost.get("order_cost_per_unit")
+            action = item_cost.get("action", "none_needed")
 
-                with col3:
-                    st.metric("On Hand", item.on_hand)
+            # Weather info
+            weather_str = "-"
+            if item.borrow_sources and cost_summary and cost_summary.get("weather"):
+                parts = []
+                for source in item.borrow_sources:
+                    w = cost_summary["weather"].get(source.crew_id, {})
+                    if w:
+                        cond = w["condition"].replace("_", " ").title()
+                        mult = w["multiplier"]
+                        parts.append(f"{cond} ({mult}x)" if mult > 1.0 else cond)
+                if parts:
+                    weather_str = ", ".join(parts)
 
-                with col4:
-                    if item.borrow_sources:
-                        total_borrowed = sum(b.quantity for b in item.borrow_sources)
-                        borrow_text = ", ".join([
-                            f"Crew {b.crew_id}: {b.quantity} ({b.distance}mi)"
-                            for b in item.borrow_sources
-                        ])
-                        st.metric("Borrow", total_borrowed)
-                        st.caption(borrow_text)
-                    else:
-                        st.metric("Borrow", 0)
-                        st.caption("None available")
+            decision_map = {"borrow": "BORROW", "order": "ORDER", "mixed": "MIXED", "none_needed": "OK"}
 
-                with col5:
-                    new_qty = st.number_input(
-                        "Order",
-                        min_value=0,
-                        value=st.session_state.order_quantities.get(item.consumable_name, item.to_order),
-                        key=f"order_{item.consumable_name}",
-                        label_visibility="visible"
-                    )
-                    st.session_state.order_quantities[item.consumable_name] = new_qty
+            table_rows.append({
+                "Consumable": name,
+                "Needed": item.total_needed,
+                "On Hand": item.on_hand,
+                "Borrow": borrow_qty,
+                "Source": borrow_source,
+                "Order": item.to_order,
+                "Borrow $/unit": f"${borrow_cpu:.2f}" if borrow_cpu is not None else "-",
+                "Order $/unit": f"${order_cpu:.2f}" if order_cpu is not None else "-",
+                "Decision": decision_map.get(action, action.upper()),
+                "Weather": weather_str,
+            })
+
+        df_order = pd.DataFrame(table_rows)
+        st.dataframe(df_order, use_container_width=True, hide_index=True)
+
+        # Total cost summary
+        if cost_summary:
+            st.markdown("#### Estimated Total Cost")
+            cost_col1, cost_col2, cost_col3 = st.columns(3)
+            with cost_col1:
+                st.metric("Recommended Plan", f"${cost_summary['total_estimated_cost']:.2f}")
+            with cost_col2:
+                st.metric("If All Ordered", f"${cost_summary['total_if_all_ordered']:.2f}")
+            with cost_col3:
+                savings = cost_summary["total_savings"]
+                if cost_summary["total_if_all_ordered"] > 0:
+                    savings_pct = (savings / cost_summary["total_if_all_ordered"]) * 100
+                    st.metric("Savings", f"${savings:.2f}", delta=f"{savings_pct:.1f}%")
+                else:
+                    st.metric("Savings", "$0.00")
 
         st.divider()
 
+        # Editable order quantities
+        st.markdown("#### Adjust Order Quantities")
+        edit_cols = st.columns(len(order_plan.items))
+        for i, item in enumerate(order_plan.items):
+            with edit_cols[i]:
+                name = display_names.get(item.consumable_name, item.consumable_name)
+                new_qty = st.number_input(
+                    name,
+                    min_value=0,
+                    value=st.session_state.order_quantities.get(item.consumable_name, item.to_order),
+                    key=f"order_{item.consumable_name}",
+                )
+                st.session_state.order_quantities[item.consumable_name] = new_qty
+
         # Approve & Order button
-        approve_col1, approve_col2 = st.columns([1, 1])
-        with approve_col1:
-            if st.button("Approve & Order", type="primary", use_container_width=True):
-                st.session_state.order_approved = True
-                st.rerun()
+        if st.button("Approve & Order", type="primary", use_container_width=True):
+            st.session_state.order_approved = True
+            st.rerun()
 
         if st.session_state.order_approved:
-            st.success("Order sent! Order approved and submitted successfully.")
-
-            # Show summary
-            st.markdown("#### Order Summary")
-            summary_data = []
-            for consumable, qty in st.session_state.order_quantities.items():
-                if qty > 0:
-                    summary_data.append({
-                        "Consumable": display_names.get(consumable, consumable.replace("_", " ").title()),
-                        "Quantity Ordered": qty
-                    })
-
-            if summary_data:
-                st.dataframe(pd.DataFrame(summary_data), use_container_width=True, hide_index=True)
-            else:
-                st.info("No items ordered - all needs can be met from on-hand spares and borrowing.")
-
-            # Borrow Summary
-            st.markdown("#### Borrow Summary")
-            borrow_data = []
-            for item in order_plan.items:
-                for source in item.borrow_sources:
-                    borrow_data.append({
-                        "Consumable": display_names.get(item.consumable_name, item.consumable_name),
-                        "From Crew": source.crew_id,
-                        "Quantity": source.quantity,
-                        "Distance (mi)": source.distance
-                    })
-
-            if borrow_data:
-                st.dataframe(pd.DataFrame(borrow_data), use_container_width=True, hide_index=True)
-            else:
-                st.info("No borrowing required.")
+            st.success("Order approved and submitted successfully.")
 
 
 def main():
@@ -485,7 +408,10 @@ def main():
     st.divider()
 
     # Create tabs
-    tab1, tab2 = st.tabs(["📊 Pump Status", "📋 Job Planning"])
+    tab1, tab2 = st.tabs([
+        "📊 Pump Status",
+        "📋 Job Planning",
+    ])
 
     with tab1:
         st.session_state.active_tab = "pump_status"
