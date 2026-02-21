@@ -189,6 +189,8 @@ def _apply_cost_optimized_logic(
         consumable, total_shortfall_all, cost_config
     )
 
+    remaining = shortfall
+
     # Calculate borrow cost per unit for each crew with available spares
     crew_options = []
     for crew in nearby_crews:
@@ -215,7 +217,6 @@ def _apply_cost_optimized_logic(
     crew_options.sort(key=lambda x: x["borrow_cost_per_unit"])
 
     # Fill shortage: borrow from crews where cheaper than ordering
-    remaining = shortfall
     borrows = []
 
     for option in crew_options:

@@ -31,3 +31,5 @@ NUL
 
 # Exports
 exported_data.json
+schemas/__pycache__/crew.cpython-313.pyc
+tools/__pycache__/order_planner.cpython-313.pyc
