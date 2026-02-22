@@ -2,10 +2,12 @@
 Core chatbot logic for the frac consumables planner.
 
 This module provides context-aware chatbot functionality with intent routing.
-Messages are classified into three intents:
+Messages are classified into four intents:
 - STATUS: LLM answers freely about pump health
 - ORDER: Deterministic order pipeline, no LLM
 - COST: Full deterministic pipeline (order -> transfer -> cost), no LLM
+- EXPLAIN: LLM-based explanation of order decisions and what-if sensitivity analysis
+           (only active in job_planning context; falls through to STATUS otherwise)
 
 Usage:
     from ui.chatbot import handle_chat_message, ChatMessage, ChatIntent
