@@ -13,14 +13,19 @@ Usage:
     response, intent = handle_chat_message(crew_data, message, history)
 """
 
+import json
+import re
 from dataclasses import dataclass, field
 from datetime import datetime
 
 from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+from langgraph.prebuilt import create_react_agent
 
 from schemas.crew import CrewData
 from schemas.order import OrderPlan
+from schemas.transfer import TransferPlan
+from schemas.cost import CostConfig
 from schemas.chatbot_response import ChatbotResponse, OrderRecommendation
 from tools.needs_calculator import calculate_needs
 from tools.inventory_reader import read_inventory
@@ -31,6 +36,7 @@ from agent.cost_analyzer import _run_deterministic_cost_analysis
 from tools.route_planner import format_transfer_plan
 from tools.cost_calculator import format_cost_comparison, load_cost_config
 from tools.weather_checker import check_weather
+from tools.sensitivity_calculator import recalculate_sensitivity, set_sensitivity_context
 from ui.intent_router import classify_intent, ChatIntent
 
 # Fixed seed for stable weather within a session
@@ -39,6 +45,7 @@ from prompts.chatbot_prompts import (
     CHATBOT_BASE_PROMPT,
     PUMP_STATUS_CONTEXT_TEMPLATE,
     JOB_PLANNING_CONTEXT_TEMPLATE,
+    ORDER_ANALYSIS_PROMPT,
 )
 
 
@@ -487,12 +494,211 @@ def run_cost_pipeline(
     return "\n".join(lines)
 
 
+def _build_order_analysis_prompt(
+    order_plan: OrderPlan,
+    cost_summary: dict | None,
+    transfer_plan: TransferPlan,
+    cost_config: CostConfig,
+) -> str:
+    """
+    Build the dynamic system prompt for the order analysis / sensitivity pipeline.
+
+    Injects current order plan data, cost rationale, and weather context so
+    the LLM can explain decisions and interpret sensitivity results.
+    """
+    lines: list[str] = []
+
+    lines.append("## Current Order Plan")
+    for item in order_plan.items:
+        name = item.consumable_name.replace("_", " ").title()
+        shortfall = max(0, item.total_needed - item.on_hand)
+        lines.append(f"\n### {name}")
+        lines.append(f"- Total Needed: {item.total_needed} | On Hand: {item.on_hand} | Shortfall: {shortfall}")
+        if shortfall == 0:
+            lines.append("- Status: Covered by on-hand spares — no action needed")
+        else:
+            if item.borrow_sources:
+                for src in item.borrow_sources:
+                    lines.append(f"- Borrow {src.quantity} from Crew {src.crew_id} ({src.distance:.1f} mi)")
+            if item.to_order > 0:
+                lines.append(f"- Order from supplier: {item.to_order}")
+
+    if cost_summary:
+        lines.append("\n## Cost Rationale (per consumable)")
+        for consumable, data in cost_summary.get("items", {}).items():
+            name = consumable.replace("_", " ").title()
+            action = data.get("action", "")
+            borrow_cpu = data.get("borrow_cost_per_unit")
+            order_cpu = data.get("order_cost_per_unit")
+            savings_cpu = data.get("savings_per_unit")
+            lines.append(f"\n### {name} → {action.upper()}")
+            if borrow_cpu is not None:
+                lines.append(f"- Borrow cost/unit: ${borrow_cpu:.2f}")
+            if order_cpu is not None:
+                lines.append(f"- Order cost/unit: ${order_cpu:.2f}")
+            if savings_cpu is not None and savings_cpu != 0:
+                lines.append(f"- Savings/unit by choosing {action}: ${abs(savings_cpu):.2f}")
+
+        total = cost_summary.get("total_estimated_cost")
+        total_if_ordered = cost_summary.get("total_if_all_ordered")
+        total_savings = cost_summary.get("total_savings")
+        if total is not None:
+            lines.append(f"\n**Recommended plan total: ${total:.2f}**")
+            lines.append(f"**Cost if everything ordered: ${total_if_ordered:.2f}**")
+            lines.append(f"**Total savings: ${total_savings:.2f}**")
+
+    lines.append("\n## Cost Configuration")
+    lines.append(f"- Travel: ${cost_config.travel.cost_per_mile}/mi, ${cost_config.travel.cost_per_hour_labor}/hr labor, {cost_config.travel.average_speed_mph} mph avg speed")
+    for name, pricing in cost_config.consumables.items():
+        lines.append(f"- {name.replace('_', ' ').title()}: ${pricing.unit_price}/unit")
+    lines.append(f"- Shipping: ${cost_config.shipping.base_cost} base + ${cost_config.shipping.per_unit_cost}/unit")
+
+    if transfer_plan.segments:
+        lines.append("\n## Current Weather at Source Crews")
+        for seg in transfer_plan.segments:
+            lines.append(f"- {seg.from_crew}: {seg.weather_condition} ({seg.weather_multiplier}x travel time multiplier), {seg.distance_miles:.1f} mi")
+
+    return ORDER_ANALYSIS_PROMPT.format(order_context="\n".join(lines))
+
+
+WHAT_IF_PHRASES = [
+    "what if", "if weather", "if it rains", "if it storms", "if storm",
+    "if distance", "if price", "if parts", "if cost", "if conditions",
+    "what would happen", "would it change", "would the decision",
+    "suppose", "assuming", "sensitivity", "scenario",
+]
+
+
+def _is_what_if_question(message: str) -> bool:
+    lower = message.lower()
+    return any(phrase in lower for phrase in WHAT_IF_PHRASES)
+
+
+def _extract_sensitivity_params(user_message: str, llm) -> dict:
+    """Ask the LLM to extract scenario params as JSON only — no tool-calling needed."""
+    prompt = (
+        "Extract scenario parameters from this what-if question. "
+        "Return ONLY a JSON object — no explanation, no markdown, no text before or after:\n"
+        '{"weather_scenario": "current"|"clear"|"rain"|"storm", '
+        '"distance_multiplier": <float>, "price_change_pct": <float>}\n\n'
+        f'Question: "{user_message}"'
+    )
+    content = llm.invoke([HumanMessage(content=prompt)]).content
+    match = re.search(r'\{[^}]+\}', content, re.DOTALL)
+    if match:
+        try:
+            return json.loads(match.group())
+        except json.JSONDecodeError:
+            pass
+    return {"weather_scenario": "current", "distance_multiplier": 1.0, "price_change_pct": 0.0}
+
+
+def _run_what_if_pipeline(
+    user_message: str,
+    chat_history: list["ChatMessage"],
+    system_prompt: str,
+    llm,
+) -> str:
+    """Deterministic what-if path: always invokes recalculate_sensitivity, LLM only interprets."""
+    params = _extract_sensitivity_params(user_message, llm)
+    tool_result = recalculate_sensitivity.invoke(params)
+
+    history_msgs: list = []
+    for msg in chat_history[-6:]:
+        if msg.role == "user":
+            history_msgs.append(HumanMessage(content=msg.content))
+        else:
+            history_msgs.append(AIMessage(content=msg.content))
+
+    messages = [
+        SystemMessage(content=system_prompt),
+        *history_msgs,
+        HumanMessage(content=(
+            f"User asked: {user_message}\n\n"
+            f"Sensitivity analysis result:\n{tool_result}\n\n"
+            "Interpret this result clearly and concisely for the user."
+        )),
+    ]
+    return llm.invoke(messages).content
+
+
+def run_explain_pipeline(
+    crew_data: CrewData,
+    order_plan: OrderPlan,
+    cost_summary: dict | None,
+    user_message: str,
+    chat_history: list["ChatMessage"],
+    model: str,
+    weather_seed: int = DEFAULT_WEATHER_SEED,
+) -> str:
+    """
+    Run the LLM-powered explanation / sensitivity analysis pipeline.
+
+    The LLM receives the full order plan context and has access to
+    recalculate_sensitivity so it can answer both explanation questions
+    and what-if scenario questions naturally.
+
+    Args:
+        crew_data: Current crew data
+        order_plan: The existing order plan from session state
+        cost_summary: Cost metadata from the order planning run
+        user_message: The user's question
+        chat_history: Previous chat messages for conversational context
+        model: Ollama model name
+        weather_seed: Seed used for reproducible base weather
+
+    Returns:
+        Assistant response string
+    """
+    # Build base transfer plan for the sensitivity tool context
+    transfer_result = _run_deterministic_transfer(order_plan, crew_data, weather_seed)
+    transfer_plan: TransferPlan = transfer_result["transfer_plan"]
+    cost_config = load_cost_config()
+
+    # Inject base data into the sensitivity tool's module-level context
+    set_sensitivity_context(order_plan, transfer_plan, cost_config)
+
+    # Build dynamic system prompt with all current plan data
+    system_prompt = _build_order_analysis_prompt(order_plan, cost_summary, transfer_plan, cost_config)
+
+    # Create LLM
+    llm = create_chatbot_llm(model=model)
+
+    # Two-path split: what-if → deterministic pipeline, explain → ReAct agent
+    if _is_what_if_question(user_message):
+        return _run_what_if_pipeline(user_message, chat_history, system_prompt, llm)
+
+    # Explanation path: ReAct agent with sensitivity tool bound
+    agent = create_react_agent(
+        model=llm,
+        tools=[recalculate_sensitivity],
+        prompt=system_prompt,
+    )
+
+    # Build message list from history + current message
+    history_msgs: list = []
+    for msg in chat_history[-8:]:
+        if msg.role == "user":
+            history_msgs.append(HumanMessage(content=msg.content))
+        else:
+            history_msgs.append(AIMessage(content=msg.content))
+    history_msgs.append(HumanMessage(content=user_message))
+
+    try:
+        result = agent.invoke({"messages": history_msgs})
+        return result["messages"][-1].content
+    except Exception as e:
+        return f"I encountered an error during analysis: {str(e)}. Make sure Ollama is running."
+
+
 def handle_chat_message(
     crew_data: CrewData,
     user_message: str,
     chat_history: list[ChatMessage],
     order_plan: OrderPlan | None = None,
     selected_model: str = "llama3",
+    context_mode: str = "pump_status",
+    cost_summary: dict | None = None,
 ) -> tuple[str, ChatIntent]:
     """
     Route a user message to the appropriate handler based on intent.
@@ -500,18 +706,38 @@ def handle_chat_message(
     For status: LLM responds freely with pump data context.
     For order: Deterministic pipeline output, no LLM.
     For cost: Full deterministic pipeline output, no LLM.
+    For explain (job_planning): LLM with order plan context + sensitivity tool.
 
     Args:
         crew_data: Current crew data
         user_message: The user's chat message
         chat_history: Previous chat messages
         order_plan: Pre-existing order plan from session state (if available)
-        selected_model: Ollama model name for LLM (status intent only)
+        selected_model: Ollama model name for LLM responses
+        context_mode: "pump_status" or "job_planning"
+        cost_summary: Cost metadata from agent result (for job planning context)
 
     Returns:
         Tuple of (response_string, detected_intent)
     """
     intent = classify_intent(user_message)
+
+    # In job planning context, EXPLAIN and COST both go to the LLM analysis pipeline
+    if context_mode == "job_planning" and intent in (ChatIntent.EXPLAIN, ChatIntent.COST):
+        if order_plan is None:
+            # Generate order plan first so the pipeline has something to explain
+            order_plan, _ = run_order_pipeline(crew_data)
+            if order_plan is None:
+                return "Could not generate an order plan to analyze. Please try generating one first.", intent
+        response = run_explain_pipeline(
+            crew_data=crew_data,
+            order_plan=order_plan,
+            cost_summary=cost_summary,
+            user_message=user_message,
+            chat_history=chat_history,
+            model=selected_model,
+        )
+        return response, ChatIntent.EXPLAIN
 
     if intent == ChatIntent.ORDER:
         if order_plan is not None:

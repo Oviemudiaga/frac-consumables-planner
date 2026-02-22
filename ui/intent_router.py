@@ -1,10 +1,11 @@
 """
 Intent router for the chatbot.
 
-Classifies user messages into one of three intents:
+Classifies user messages into one of four intents:
 - "status": Questions about pump health, remaining life, conditions
 - "order": Questions about what to order, borrow, or plan
 - "cost": Questions about costs, pricing, financials
+- "explain": Explanation of decisions OR what-if/sensitivity analysis
 
 Uses keyword matching for deterministic, reliable classification.
 
@@ -23,11 +24,25 @@ class ChatIntent(str, Enum):
     STATUS = "status"
     ORDER = "order"
     COST = "cost"
+    EXPLAIN = "explain"
 
 
-# Priority: cost > order > status
-# Cost is checked first because cost questions often contain order words
-# (e.g., "how much does the order cost?" should route to COST, not ORDER)
+# Priority: explain > cost > order > status
+# EXPLAIN captures both "explain the plan" and "what if" questions,
+# routing them to the LLM-based analysis pipeline in job planning context.
+
+EXPLAIN_KEYWORDS: list[str] = [
+    # Explanation requests
+    "explain", "why", "why did", "why are", "how does", "how did",
+    "what does", "what is the reason", "tell me about", "understand",
+    "analyze", "analysis", "breakdown", "summarize",
+    # What-if / sensitivity
+    "what if", "if weather", "if it rains", "if it storms", "if storm",
+    "if distance", "if price", "if parts", "if cost",
+    "sensitivity", "scenario", "impact", "what would happen",
+    "would it change", "would the decision", "compare scenarios",
+    "if conditions", "if it was", "suppose", "assuming",
+]
 
 COST_KEYWORDS: list[str] = [
     "cost", "price", "pricing", "expensive", "cheap", "cheaper",
@@ -64,7 +79,7 @@ def classify_intent(message: str) -> ChatIntent:
     """
     Classify a user message into a chat intent.
 
-    Priority: cost > order > status (explicit) > status (default).
+    Priority: explain > cost > order > status (explicit) > status (default).
 
     Args:
         message: The user's chat message
@@ -73,6 +88,10 @@ def classify_intent(message: str) -> ChatIntent:
         ChatIntent enum value
     """
     lower = message.lower()
+
+    for keyword in EXPLAIN_KEYWORDS:
+        if keyword in lower:
+            return ChatIntent.EXPLAIN
 
     for keyword in COST_KEYWORDS:
         if keyword in lower:

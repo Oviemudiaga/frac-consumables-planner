@@ -22,7 +22,8 @@ def render_chatbot(
     crew_data: CrewData,
     context_mode: str,
     order_plan: OrderPlan | None = None,
-    selected_model: str = "llama3"
+    selected_model: str = "llama3",
+    cost_summary: dict | None = None,
 ):
     """
     Render the chatbot interface.
@@ -32,6 +33,7 @@ def render_chatbot(
         context_mode: "pump_status" or "job_planning"
         order_plan: Order plan if available (for job planning context)
         selected_model: Ollama model to use
+        cost_summary: Cost metadata from agent result (for job planning context)
     """
     st.subheader("Assistant")
 
@@ -71,13 +73,17 @@ def render_chatbot(
                     chat_history=st.session_state.chat_history[:-1],
                     order_plan=order_plan,
                     selected_model=selected_model,
+                    context_mode=context_mode,
+                    cost_summary=cost_summary,
                 )
 
-                # Add intent badge for order/cost responses
+                # Add intent badge for order/cost/explain responses
                 if intent == ChatIntent.ORDER:
                     response = "**[Order Plan]**\n\n" + response
                 elif intent == ChatIntent.COST:
                     response = "**[Cost Analysis]**\n\n" + response
+                elif intent == ChatIntent.EXPLAIN:
+                    response = "**[Analysis]**\n\n" + response
             except Exception as e:
                 response = f"Error: {str(e)}. Make sure Ollama is running with `ollama serve`."
 
