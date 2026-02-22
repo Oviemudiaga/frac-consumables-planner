@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36" version="29.5.1">
   <diagram id="agent-architecture" name="Agent Architecture">
-    <mxGraphModel dx="182083" dy="134016" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="1">
+    <mxGraphModel dx="205782" dy="147974" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="1">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -47,6 +47,9 @@
         </mxCell>
         <mxCell id="router-to-status" edge="1" parent="ui-group" source="intent-router" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#81c784;strokeWidth=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="intent-status">
           <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="MW5igOZqSiwsV8mf5qxq-14" parent="ui-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;fontStyle=1;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="EXPLAIN" vertex="1">
+          <mxGeometry height="21.348314606741567" width="55.41666666666667" x="846.6666666666666" y="29.886067415730338" as="geometry" />
         </mxCell>
         <mxCell id="agent-bg" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#1A1A2E,#FFFFFF);strokeColor=#16213e;arcSize=4;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="" vertex="1">
           <mxGeometry height="409.88764044943815" width="1140" y="213.48314606741567" as="geometry" />
