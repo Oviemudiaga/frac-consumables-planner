@@ -231,11 +231,13 @@ def render_job_planning_tab():
 
     with right_col:
         order_plan = st.session_state.agent_result.get("order_plan") if st.session_state.agent_result else None
+        cost_summary = st.session_state.agent_result.get("cost_summary") if st.session_state.agent_result else None
         render_chatbot(
             crew_data=crew_data,
             context_mode="job_planning",
             order_plan=order_plan,
-            selected_model=st.session_state.selected_model
+            selected_model=st.session_state.selected_model,
+            cost_summary=cost_summary,
         )
 
 
