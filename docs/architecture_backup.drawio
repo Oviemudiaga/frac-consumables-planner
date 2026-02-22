@@ -1,23 +1,23 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36" version="29.5.1">
   <diagram id="agent-architecture" name="Agent Architecture">
-    <mxGraphModel dx="17707" dy="10503" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1560" pageHeight="930" math="0" shadow="1">
+    <mxGraphModel dx="2100" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2020" pageHeight="940" math="0" shadow="1">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="682FzgvxKvg2nPUIRDxl-4" connectable="0" parent="1" style="group" value="" vertex="1">
-          <mxGeometry height="890" width="1440" x="80" y="20" as="geometry" />
+          <mxGeometry height="890" width="1860" x="80" y="20" as="geometry" />
         </mxCell>
         <mxCell id="title" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=28;fontStyle=1;fontColor=#1a1a2e;align=center;verticalAlign=middle;whiteSpace=wrap;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="Frac Consumables Planner — Multi-Agent Architecture" vertex="1">
-          <mxGeometry height="50" width="1000" x="220" as="geometry" />
+          <mxGeometry height="50" width="1000" x="430" as="geometry" />
         </mxCell>
         <mxCell id="subtitle" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=13;fontColor=#6c757d;align=center;verticalAlign=middle;whiteSpace=wrap;fontStyle=2;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="Powered by LangChain + LangGraph  |  ReAct Pattern  |  Ollama" vertex="1">
-          <mxGeometry height="30" width="800" x="320" y="45" as="geometry" />
+          <mxGeometry height="30" width="800" x="530" y="45" as="geometry" />
         </mxCell>
         <mxCell id="682FzgvxKvg2nPUIRDxl-3" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="ui-group" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fillColor=#f5f5f5;strokeColor=#666666;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="agent-bg">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="ui-group" parent="682FzgvxKvg2nPUIRDxl-4" style="swimlane;startSize=30;fillColor=#f5f5f5;strokeColor=#cccccc;rounded=1;arcSize=8;fontSize=12;fontColor=#555555;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="USER INTERFACE —  Streamlit" vertex="1">
-          <mxGeometry height="120" width="1280" x="80" y="90" as="geometry">
+          <mxGeometry height="120" width="1700" x="80" y="90" as="geometry">
             <mxRectangle height="30" width="260" x="160" y="110" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
@@ -42,6 +42,9 @@
         <mxCell id="intent-cost" parent="ui-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8e1;strokeColor=#ffd54f;fontSize=10;fontStyle=1;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="COST" vertex="1">
           <mxGeometry height="25" width="70" x="990" y="35" as="geometry" />
         </mxCell>
+        <mxCell id="intent-explain" parent="ui-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#7986cb;fontSize=10;fontStyle=1;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="EXPLAIN" vertex="1">
+          <mxGeometry height="25" width="80" x="1070" y="35" as="geometry" />
+        </mxCell>
         <mxCell id="chat-to-router" edge="1" parent="ui-group" source="ui-chat" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#ffb74d;strokeWidth=1.5;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="intent-router">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -49,16 +52,16 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="agent-bg" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#1A1A2E,#FFFFFF);strokeColor=#16213e;arcSize=4;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="" vertex="1">
-          <mxGeometry height="480" width="1440" y="250" as="geometry" />
+          <mxGeometry height="480" width="1860" y="250" as="geometry" />
         </mxCell>
         <mxCell id="agent-layer-title" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=16;fontStyle=1;fontColor=#e0e0e0;align=left;verticalAlign=middle;letterSpacing=3;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="MULTI-AGENT ORCHESTRATION" vertex="1">
           <mxGeometry height="30" width="400" x="40" y="260" as="geometry" />
         </mxCell>
         <mxCell id="agent-layer-badge" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f3460;strokeColor=#533483;fontSize=10;fontColor=#e0e0e0;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="LangGraph ReAct Agents" vertex="1">
-          <mxGeometry height="25" width="160" x="1240" y="260" as="geometry" />
+          <mxGeometry height="25" width="160" x="1660" y="260" as="geometry" />
         </mxCell>
         <mxCell id="llm-node" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1565c0;strokeColor=#42a5f5;strokeWidth=2;shadow=1;fontSize=12;fontColor=#ffffff;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b style=&quot;font-size:14px;&quot;&gt;🧠 LLM Backbone&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:12px;&quot;&gt;Ollama&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px; color: rgb(170, 170, 170);&quot;&gt;Local inference&lt;/font&gt;" vertex="1">
-          <mxGeometry height="90" width="320" x="560" y="300" as="geometry" />
+          <mxGeometry height="90" width="320" x="770" y="300" as="geometry" />
         </mxCell>
         <mxCell id="agent1-card" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2d1b1b;strokeColor=#e74c3c;strokeWidth=2;arcSize=8;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="" vertex="1">
           <mxGeometry height="280" width="380" x="40" y="420" as="geometry" />
@@ -123,6 +126,21 @@
         <mxCell id="a3-output" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e67700;strokeColor=none;fontSize=11;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;→ CostBreakdown&lt;/b&gt;" vertex="1">
           <mxGeometry height="28" width="130" x="1005" y="620" as="geometry" />
         </mxCell>
+        <mxCell id="agent4-card" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1b1b2d;strokeColor=#7c4dff;strokeWidth=2;arcSize=8;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="" vertex="1">
+          <mxGeometry height="280" width="380" x="1300" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="agent4-header" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=14;fontColor=#ffffff;align=center;verticalAlign=middle;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;font style=&quot;font-size:16px;&quot;&gt;&lt;b&gt;Sensitivity Agent&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px;color:#d1c4e9;&quot;&gt;What-if scenario analysis&lt;/font&gt;" vertex="1">
+          <mxGeometry height="45" width="340" x="1320" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="agent4-react" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7c4dff;strokeColor=none;fontSize=10;fontColor=#ffffff;fontStyle=1;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="⚡ ReAct Pattern" vertex="1">
+          <mxGeometry height="22" width="110" x="1430" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="a4-t1" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a1a3d;strokeColor=#b388ff;fontSize=10;fontColor=#d1c4e9;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;recalculate_sensitivity&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Weather / distance / price scenarios&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="1370" y="515" as="geometry" />
+        </mxCell>
+        <mxCell id="a4-output" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#5e35b1;strokeColor=none;fontSize=11;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;→ SensitivityResult&lt;/b&gt;" vertex="1">
+          <mxGeometry height="28" width="160" x="1410" y="620" as="geometry" />
+        </mxCell>
         <mxCell id="flow-1-2" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="a1-output" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#ffffff;strokeWidth=3;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="agent2-card" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
@@ -145,6 +163,17 @@
         <mxCell id="flow-2-3-label" connectable="0" parent="flow-2-3" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fillColor=#1a1a2e;rounded=1;" value="&lt;font color=&quot;#ffffff&quot; style=&quot;font-size:10px;&quot;&gt;TransferPlan&lt;/font&gt;" vertex="1">
           <mxGeometry relative="1" x="-0.1" as="offset" />
         </mxCell>
+        <mxCell id="flow-3-4" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="a3-output" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#ffffff;strokeWidth=3;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="agent4-card" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1280" y="634" />
+              <mxPoint x="1280" y="560" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="flow-3-4-label" connectable="0" parent="flow-3-4" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fillColor=#1a1a2e;rounded=1;" value="&lt;font color=&quot;#ffffff&quot; style=&quot;font-size:10px;&quot;&gt;CostBreakdown&lt;/font&gt;" vertex="1">
+          <mxGeometry relative="1" x="-0.1" as="offset" />
+        </mxCell>
         <mxCell id="llm-to-a1" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="llm-node" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#42a5f5;strokeWidth=2;dashed=1;dashPattern=5 3;entryX=0.5;entryY=0;entryDx=0;entryDy=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="agent1-card" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -154,26 +183,29 @@
         <mxCell id="llm-to-a3" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="llm-node" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#42a5f5;strokeWidth=2;dashed=1;dashPattern=5 3;entryX=0.5;entryY=0;entryDx=0;entryDy=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="agent3-card" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
+        <mxCell id="llm-to-a4" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="llm-node" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#42a5f5;strokeWidth=2;dashed=1;dashPattern=5 3;entryX=0.5;entryY=0;entryDx=0;entryDy=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="agent4-card" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="react-box" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f3460;strokeColor=#533483;strokeWidth=2;arcSize=10;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="" vertex="1">
-          <mxGeometry height="150" width="120" x="1300" y="320" as="geometry" />
+          <mxGeometry height="150" width="120" x="1720" y="320" as="geometry" />
         </mxCell>
         <mxCell id="react-title" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=11;fontColor=#e0e0e0;align=center;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;ReAct Loop&lt;/b&gt;" vertex="1">
-          <mxGeometry height="20" width="100" x="1310" y="325" as="geometry" />
+          <mxGeometry height="20" width="100" x="1730" y="325" as="geometry" />
         </mxCell>
         <mxCell id="react-reason" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7c4dff;strokeColor=none;fontSize=10;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="💭 Reason" vertex="1">
-          <mxGeometry height="25" width="80" x="1320" y="355" as="geometry" />
+          <mxGeometry height="25" width="80" x="1740" y="355" as="geometry" />
         </mxCell>
         <mxCell id="react-act" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00c853;strokeColor=none;fontSize=10;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="🔧 Act" vertex="1">
-          <mxGeometry height="25" width="80" x="1320" y="390" as="geometry" />
+          <mxGeometry height="25" width="80" x="1740" y="390" as="geometry" />
         </mxCell>
         <mxCell id="react-observe" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ff6d00;strokeColor=none;fontSize=10;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="👁 Observe" vertex="1">
-          <mxGeometry height="25" width="80" x="1320" y="425" as="geometry" />
+          <mxGeometry height="25" width="80" x="1740" y="425" as="geometry" />
         </mxCell>
         <mxCell id="react-loop" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="react-observe" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#b388ff;strokeWidth=1.5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;curved=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="react-reason" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1415" y="438" />
-              <mxPoint x="1415" y="368" />
+              <mxPoint x="1835" y="438" />
+              <mxPoint x="1835" y="368" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -196,7 +228,7 @@
           <mxGeometry height="55" width="150" x="340" y="40" as="geometry" />
         </mxCell>
         <mxCell id="output-group" parent="682FzgvxKvg2nPUIRDxl-4" style="swimlane;startSize=25;fillColor=#e8f5e9;strokeColor=#81c784;rounded=1;arcSize=8;fontSize=11;fontColor=#2e7d32;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="STRUCTURED OUTPUT" vertex="1">
-          <mxGeometry height="120" width="620" x="620" y="770" as="geometry" />
+          <mxGeometry height="120" width="820" x="620" y="770" as="geometry" />
         </mxCell>
         <mxCell id="out-order" parent="output-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#66bb6a;fontSize=11;arcSize=15;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;OrderPlan&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#666;&quot;&gt;What to borrow &amp; order&lt;/font&gt;" vertex="1">
           <mxGeometry height="55" width="160" x="20" y="40" as="geometry" />
@@ -207,24 +239,30 @@
         <mxCell id="out-cost" parent="output-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#66bb6a;fontSize=11;arcSize=15;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;CostBreakdown&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#666;&quot;&gt;Savings &amp; recommendation&lt;/font&gt;" vertex="1">
           <mxGeometry height="55" width="190" x="400" y="40" as="geometry" />
         </mxCell>
+        <mxCell id="out-sensitivity" parent="output-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#66bb6a;fontSize=11;arcSize=15;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;SensitivityResult&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#666;&quot;&gt;What-if cost deltas&lt;/font&gt;" vertex="1">
+          <mxGeometry height="55" width="180" x="620" y="40" as="geometry" />
+        </mxCell>
         <mxCell id="out-flow-1" edge="1" parent="output-group" source="out-order" style="endArrow=classic;strokeColor=#66bb6a;strokeWidth=2;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="out-transfer" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="out-flow-2" edge="1" parent="output-group" source="out-transfer" style="endArrow=classic;strokeColor=#66bb6a;strokeWidth=2;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="out-cost" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
+        <mxCell id="out-flow-3" edge="1" parent="output-group" source="out-cost" style="endArrow=classic;strokeColor=#66bb6a;strokeWidth=2;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="out-sensitivity" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="agents-to-output" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#81c784;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;dashPattern=8 4;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="720" y="750" />
-              <mxPoint x="930" y="750" />
+              <mxPoint x="1030" y="750" />
             </Array>
             <mxPoint x="720" y="730" as="sourcePoint" />
-            <mxPoint x="930" y="770" as="targetPoint" />
+            <mxPoint x="1030" y="770" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="weather-note" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a1a2e;strokeColor=#1565c0;strokeWidth=1;dashed=1;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;font style=&quot;font-size:10px;color:#90caf9;&quot;&gt;🌦 Weather Multipliers&lt;br&gt;Clear 1.0× → Storm 2.0×&lt;br&gt;Adjusts travel costs&lt;/font&gt;" vertex="1">
-          <mxGeometry height="50" width="170" x="1270" y="490" as="geometry" />
+          <mxGeometry height="50" width="170" x="1690" y="490" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
