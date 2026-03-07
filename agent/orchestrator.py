@@ -7,19 +7,16 @@ Refactored to use LangGraph StateGraph patterns:
 3. State Management: TypedDict for reliable state passing.
 """
 
-import json
 from typing import TypedDict, Optional, Dict, Any
-from langchain_ollama import ChatOllama
 from langgraph.graph import StateGraph, END
 
-from schemas.crew import CrewData, Spares
+from schemas.crew import CrewData
 from schemas.order import OrderPlan
 from tools.needs_calculator import calculate_needs
 from tools.inventory_reader import read_inventory
 from tools.order_planner import plan_order, compute_cost_summary
 from tools.weather_checker import check_weather
 from tools.cost_calculator import load_cost_config
-from prompts.prompts import SYSTEM_PROMPT
 
 
 class PlannerState(TypedDict):
@@ -79,12 +76,8 @@ def plan_order_node(state: PlannerState) -> dict:
     return {"order_plan": order_plan}
 
 
-def generate_recommendation_node(state: PlannerState) -> dict:
-    """Node: Generate human-readable recommendation and cost summary."""
-    order_plan = state["order_plan"]
-    nearby_crews = state["inventory"]["nearby_crews"]
-    
-    # Recommendation formatting
+def _generate_recommendation(order_plan: OrderPlan, nearby_crews: list) -> str:
+    """Generate a human-readable recommendation from the order plan."""
     lines = [f"**Order Plan for Crew {order_plan.crew_id}** ({order_plan.job_duration_hours}-hour job)\n"]
     for item in order_plan.items:
         display_name = item.consumable_name.replace("_", " ").title()
@@ -113,11 +106,19 @@ def generate_recommendation_node(state: PlannerState) -> dict:
     total_to_order = sum(item.to_order for item in order_plan.items)
     total_to_borrow = sum(sum(b.quantity for b in item.borrow_sources) for item in order_plan.items)
     lines.append(f"\n**Summary**: Borrow {total_to_borrow} total, order {total_to_order} total from supplier.")
-    
-    # Cost summary computation
+
+    return "\n".join(lines)
+
+
+def generate_recommendation_node(state: PlannerState) -> dict:
+    """Node: Generate human-readable recommendation and cost summary."""
+    order_plan = state["order_plan"]
+    nearby_crews = state["inventory"]["nearby_crews"]
+
+    recommendation = _generate_recommendation(order_plan, nearby_crews)
     cost_summary = compute_cost_summary(order_plan, nearby_crews, state["weather_data"], state["cost_config"])
-    
-    return {"recommendation": "\n".join(lines), "cost_summary": cost_summary}
+
+    return {"recommendation": recommendation, "cost_summary": cost_summary}
 
 
 def create_agent(model: str = "llama3"):

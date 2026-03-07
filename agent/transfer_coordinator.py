@@ -1,152 +1,87 @@
 """
 Transfer Coordinator Agent for planning consumable transfers between crews.
 
-This agent coordinates the logistics of transferring consumables:
-- Checks weather conditions at all crew locations
-- Plans optimal pickup routes
-- Calculates weather-adjusted travel times
-
-The agent flow:
-1. Receive OrderPlan from the Order Planning Agent
-2. Check weather at all relevant crew locations
-3. Plan transfer route with weather-adjusted timing
-4. Return TransferPlan to the Cost Analyzer Agent
-
-Usage:
-    from agent.transfer_coordinator import create_transfer_agent, run_transfer_agent
-
-    agent = create_transfer_agent()
-    result = run_transfer_agent(agent, order_plan, crew_data)
+Refactored to use LangGraph StateGraph patterns:
+1. Decomposition: Distinct nodes instead of a single ReAct mega-agent.
+2. Pure Functions: Nodes only update state, no global variables (`_transfer_context`).
+3. State Management: TypedDict for reliable state passing.
 """
 
-import json
-
-from langchain_ollama import ChatOllama
-from langchain_core.tools import tool
-from langgraph.prebuilt import create_react_agent
+from typing import TypedDict, Optional, Any
+from langgraph.graph import StateGraph, END
 
 from schemas.crew import CrewData
 from schemas.order import OrderPlan
 from schemas.transfer import TransferPlan
-from tools.weather_checker import check_weather, get_route_weather, get_weather_for_crews
+from tools.weather_checker import check_weather
 from tools.route_planner import plan_transfer_route, format_transfer_plan
-from prompts.transfer_prompts import TRANSFER_COORDINATOR_PROMPT
 
 
-# Module-level context to share data with tools
-_transfer_context: dict = {}
+class TransferState(TypedDict):
+    """The typed state for the transfer coordinator workflow."""
+    order_plan: OrderPlan
+    crew_data: CrewData
+    weather_seed: Optional[int]
+    weather_data: Optional[dict]
+    transfer_plan: Optional[Any]
+    summary: Optional[str]
 
 
-@tool
-def check_weather_tool(seed: int | None = None) -> str:
-    """Check weather conditions at all crew locations.
-
-    Gets current weather including temperature, wind, visibility,
-    and travel time multipliers for each crew location.
-
-    Args:
-        seed: Optional random seed for reproducible weather (for testing)
-
-    Returns:
-        JSON string with weather data per crew and a summary.
-    """
-    crew_data = _transfer_context["crew_data"]
-    result = check_weather.invoke({"crew_data": crew_data, "seed": seed})
-    _transfer_context["weather_data"] = result
-    return json.dumps(result, indent=2)
-
-
-@tool
-def get_route_weather_tool(from_crew: str, to_crew: str) -> str:
-    """Get weather conditions for a specific route between two crews.
-
-    Calculates the effective weather multiplier by averaging conditions
-    at origin and destination. Warns about hazardous conditions.
-
-    Args:
-        from_crew: Origin crew ID
-        to_crew: Destination crew ID
-
-    Returns:
-        JSON string with route weather including effective multiplier and warnings.
-    """
-    crew_data = _transfer_context["crew_data"]
-    weather_data = _transfer_context.get("weather_data")
-
-    result = get_route_weather.invoke({
-        "crew_data": crew_data,
-        "from_crew": from_crew,
-        "to_crew": to_crew,
-        "weather_data": weather_data,
+def check_weather_node(state: TransferState) -> dict:
+    """Node: Check weather at all crew locations."""
+    weather_data = check_weather.invoke({
+        "crew_data": state["crew_data"],
+        "seed": state.get("weather_seed"),
     })
-    return json.dumps(result, indent=2)
+    return {"weather_data": weather_data}
 
 
-@tool
-def plan_route_tool() -> str:
-    """Plan the optimal transfer route for picking up borrowed items.
-
-    Creates a transfer plan with:
-    - Route segments sorted by distance (nearest first)
-    - Weather-adjusted travel times
-    - Pickup manifest showing what to get from each crew
-
-    Returns:
-        JSON string with complete TransferPlan.
-    """
-    crew_data = _transfer_context["crew_data"]
-    order_plan = _transfer_context["order_plan"]
-    weather_data = _transfer_context.get("weather_data")
-
-    # Ensure we have weather data
-    if weather_data is None:
-        weather_data = check_weather.invoke({"crew_data": crew_data})
-        _transfer_context["weather_data"] = weather_data
-
-    result = plan_transfer_route.invoke({
-        "order_plan": order_plan.model_dump(),
-        "crew_data": crew_data.model_dump(),
-        "weather_data": weather_data,
+def plan_route_node(state: TransferState) -> dict:
+    """Node: Plan the optimal transfer route."""
+    transfer_plan_dict = plan_transfer_route.invoke({
+        "order_plan": state["order_plan"].model_dump(),
+        "crew_data": state["crew_data"].model_dump(),
+        "weather_data": state["weather_data"],
     })
+    transfer_plan = TransferPlan(**transfer_plan_dict)
+    return {"transfer_plan": transfer_plan}
 
-    # Store for extraction
-    _transfer_context["transfer_plan"] = TransferPlan(**result)
 
-    return json.dumps(result, indent=2)
+def format_summary_node(state: TransferState) -> dict:
+    """Node: Generate a human-readable transfer summary."""
+    summary = format_transfer_plan(state["transfer_plan"])
+    return {"summary": summary}
 
 
 def create_transfer_agent(model: str = "llama3"):
     """
-    Create a Transfer Coordinator agent with route planning tools.
-
+    Creates the transfer coordinator StateGraph.
     Args:
-        model: Ollama model name to use (default "llama3")
-
+        model: Model parameter (kept for backward compatibility).
     Returns:
-        Configured LangGraph agent with tools bound
+        Compiled LangGraph instance.
     """
-    llm = ChatOllama(model=model, temperature=0)
+    workflow = StateGraph(TransferState)
 
-    tools = [check_weather_tool, get_route_weather_tool, plan_route_tool]
+    workflow.add_node("check_weather", check_weather_node)
+    workflow.add_node("plan_route", plan_route_node)
+    workflow.add_node("format_summary", format_summary_node)
 
-    agent = create_react_agent(
-        model=llm,
-        tools=tools,
-        prompt=TRANSFER_COORDINATOR_PROMPT
-    )
+    workflow.set_entry_point("check_weather")
+    workflow.add_edge("check_weather", "plan_route")
+    workflow.add_edge("plan_route", "format_summary")
+    workflow.add_edge("format_summary", END)
 
-    return agent
+    return workflow.compile()
 
 
 def _run_deterministic_transfer(
     order_plan: OrderPlan,
     crew_data: CrewData,
-    weather_seed: int | None = None
+    weather_seed: int | None = None,
 ) -> dict:
     """
     Run the transfer planning in a deterministic sequence.
-
-    This is the primary execution path since we want consistent results.
 
     Args:
         order_plan: OrderPlan with borrow sources
@@ -154,63 +89,12 @@ def _run_deterministic_transfer(
         weather_seed: Optional seed for reproducible weather
 
     Returns:
-        Dict with transfer_plan (TransferPlan) and weather_data
-    """
-    # Step 1: Check weather
-    weather_data = check_weather.invoke({"crew_data": crew_data, "seed": weather_seed})
-
-    # Step 2: Plan route
-    transfer_plan_dict = plan_transfer_route.invoke({
-        "order_plan": order_plan.model_dump(),
-        "crew_data": crew_data.model_dump(),
-        "weather_data": weather_data,
-    })
-
-    transfer_plan = TransferPlan(**transfer_plan_dict)
-
-    # Generate summary
-    summary = format_transfer_plan(transfer_plan)
-
-    return {
-        "transfer_plan": transfer_plan,
-        "weather_data": weather_data,
-        "summary": summary,
-    }
-
-
-def run_transfer_agent(
-    agent,
-    order_plan: OrderPlan,
-    crew_data: CrewData,
-    weather_seed: int | None = None
-) -> dict:
-    """
-    Run the transfer coordinator agent to plan transfers.
-
-    Falls back to deterministic pipeline for consistent results.
-
-    Args:
-        agent: LangGraph compiled agent (can be None for deterministic mode)
-        order_plan: OrderPlan from the order planning agent
-        crew_data: CrewData with crew information
-        weather_seed: Optional seed for reproducible weather
-
-    Returns:
         Dict with transfer_plan (TransferPlan), weather_data, and summary
     """
-    # Store in context for tools
-    _transfer_context["crew_data"] = crew_data
-    _transfer_context["order_plan"] = order_plan
-    _transfer_context["transfer_plan"] = None
-    _transfer_context["weather_data"] = None
-
     # Check if there's anything to transfer
-    has_borrows = any(
-        item.borrow_sources for item in order_plan.items
-    )
+    has_borrows = any(item.borrow_sources for item in order_plan.items)
 
     if not has_borrows:
-        # No transfers needed
         empty_plan = TransferPlan(
             crew_id=order_plan.crew_id,
             segments=[],
@@ -226,5 +110,40 @@ def run_transfer_agent(
             "summary": "No transfers needed - all items covered by on-hand spares or ordering.",
         }
 
-    # Use deterministic pipeline for consistent results
+    agent = create_transfer_agent()
+    initial_state = {
+        "order_plan": order_plan,
+        "crew_data": crew_data,
+        "weather_seed": weather_seed,
+        "weather_data": None,
+        "transfer_plan": None,
+        "summary": None,
+    }
+    result = agent.invoke(initial_state)
+
+    return {
+        "transfer_plan": result["transfer_plan"],
+        "weather_data": result["weather_data"],
+        "summary": result["summary"],
+    }
+
+
+def run_transfer_agent(
+    agent,
+    order_plan: OrderPlan,
+    crew_data: CrewData,
+    weather_seed: int | None = None,
+) -> dict:
+    """
+    Run the transfer coordinator agent to plan transfers.
+
+    Args:
+        agent: Compiled LangGraph agent (can be None for deterministic mode)
+        order_plan: OrderPlan from the order planning agent
+        crew_data: CrewData with crew information
+        weather_seed: Optional seed for reproducible weather
+
+    Returns:
+        Dict with transfer_plan (TransferPlan), weather_data, and summary
+    """
     return _run_deterministic_transfer(order_plan, crew_data, weather_seed)
