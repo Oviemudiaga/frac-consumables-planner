@@ -39,7 +39,7 @@ from tools.route_planner import format_transfer_plan
 from tools.cost_calculator import format_cost_comparison, load_cost_config
 from tools.weather_checker import check_weather
 from tools.sensitivity_calculator import recalculate_sensitivity, set_sensitivity_context
-from ui.intent_router import classify_intent, ChatIntent
+from agent.intent_router import classify_intent, ChatIntent
 
 # Fixed seed for stable weather within a session
 DEFAULT_WEATHER_SEED = 42
@@ -722,7 +722,7 @@ def handle_chat_message(
     Returns:
         Tuple of (response_string, detected_intent)
     """
-    intent = classify_intent(user_message)
+    intent = classify_intent(user_message, model=selected_model, context_mode=context_mode)
 
     # In job planning context, EXPLAIN and COST both go to the LLM analysis pipeline
     if context_mode == "job_planning" and intent in (ChatIntent.EXPLAIN, ChatIntent.COST):

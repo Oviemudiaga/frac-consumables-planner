@@ -15,7 +15,7 @@ import streamlit as st
 from schemas.crew import CrewData
 from schemas.order import OrderPlan
 from ui.chatbot import ChatMessage, handle_chat_message
-from ui.intent_router import ChatIntent
+from agent.intent_router import ChatIntent
 
 
 def render_chatbot(

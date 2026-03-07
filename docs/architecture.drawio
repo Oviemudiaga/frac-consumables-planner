@@ -10,7 +10,7 @@
         <mxCell id="title" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=28;fontStyle=1;fontColor=#1a1a2e;align=center;verticalAlign=middle;whiteSpace=wrap;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="Frac Consumables Planner — Multi-Agent Architecture" vertex="1">
           <mxGeometry height="42.696629213483135" width="791.6666666666666" x="174.16666666666666" as="geometry" />
         </mxCell>
-        <mxCell id="subtitle" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=13;fontColor=#6c757d;align=center;verticalAlign=middle;whiteSpace=wrap;fontStyle=2;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="Powered by LangChain + LangGraph  |  ReAct Pattern  |  Ollama" vertex="1">
+        <mxCell id="subtitle" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=13;fontColor=#6c757d;align=center;verticalAlign=middle;whiteSpace=wrap;fontStyle=2;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="Powered by LangChain + LangGraph  |  StateGraph Pattern  |  Ollama" vertex="1">
           <mxGeometry height="25.617977528089884" width="633.3333333333335" x="253.33333333333337" y="38.426966292134836" as="geometry" />
         </mxCell>
         <mxCell id="682FzgvxKvg2nPUIRDxl-3" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="ui-group" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fillColor=#f5f5f5;strokeColor=#666666;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="agent-bg">
@@ -27,11 +27,11 @@
         <mxCell id="ui-job" parent="ui-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#dee2e6;shadow=1;fontSize=12;arcSize=20;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;Job Planning&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;color:#888&quot;&gt;Generate order plans&lt;/font&gt;" vertex="1">
           <mxGeometry height="46.966292134831455" width="126.66666666666669" x="190.00000000000003" y="38.426966292134836" as="geometry" />
         </mxCell>
-        <mxCell id="ui-chat" parent="ui-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f4fd;strokeColor=#90caf9;shadow=1;fontSize=12;arcSize=20;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;Chatbot Assistant&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;color:#888&quot;&gt;Intent-driven AI chat&lt;/font&gt;" vertex="1">
+        <mxCell id="ui-chat" parent="ui-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f4fd;strokeColor=#90caf9;shadow=1;fontSize=12;arcSize=20;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;Chatbot Assistant&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:10px;color:#888&quot;&gt;LLM-powered AI chat&lt;/font&gt;" vertex="1">
           <mxGeometry height="46.966292134831455" width="142.5" x="348.33333333333337" y="38.426966292134836" as="geometry" />
         </mxCell>
-        <mxCell id="intent-router" parent="ui-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#ffb74d;shadow=1;fontSize=11;arcSize=20;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;Intent Router&lt;/b&gt;" vertex="1">
-          <mxGeometry height="29.88764044943819" width="102.91666666666669" x="530.4166666666667" y="34.15730337078651" as="geometry" />
+        <mxCell id="intent-router" parent="ui-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#ffb74d;shadow=1;fontSize=11;arcSize=20;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;Intent Router&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#888&quot;&gt;LLM structured output&lt;/font&gt;" vertex="1">
+          <mxGeometry height="42" width="110" x="527" y="34.15730337078651" as="geometry" />
         </mxCell>
         <mxCell id="intent-status" parent="ui-group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#81c784;fontSize=10;fontStyle=1;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="STATUS" vertex="1">
           <mxGeometry height="21.348314606741567" width="55.41666666666667" x="657.0833333333334" y="29.88764044943819" as="geometry" />
@@ -54,13 +54,13 @@
         <mxCell id="agent-bg" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#1A1A2E,#FFFFFF);strokeColor=#16213e;arcSize=4;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="" vertex="1">
           <mxGeometry height="409.88764044943815" width="1140" y="213.48314606741567" as="geometry" />
         </mxCell>
-        <mxCell id="agent-layer-title" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=16;fontStyle=1;fontColor=#e0e0e0;align=left;verticalAlign=middle;letterSpacing=3;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="MULTI-AGENT ORCHESTRATION" vertex="1">
-          <mxGeometry height="25.617977528089884" width="316.66666666666674" x="31.66666666666667" y="222.02247191011233" as="geometry" />
+        <mxCell id="agent-layer-title" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=16;fontStyle=1;fontColor=#e0e0e0;align=left;verticalAlign=middle;letterSpacing=3;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="DETERMINISTIC AGENT ORCHESTRATION" vertex="1">
+          <mxGeometry height="25.617977528089884" width="400" x="31.66666666666667" y="222.02247191011233" as="geometry" />
         </mxCell>
-        <mxCell id="agent-layer-badge" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f3460;strokeColor=#533483;fontSize=10;fontColor=#e0e0e0;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="LangGraph ReAct Agents" vertex="1">
+        <mxCell id="agent-layer-badge" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f3460;strokeColor=#533483;fontSize=10;fontColor=#e0e0e0;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="LangGraph StateGraph" vertex="1">
           <mxGeometry height="21.348314606741567" width="126.66666666666669" x="981.6666666666667" y="222.02247191011233" as="geometry" />
         </mxCell>
-        <mxCell id="llm-node" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1565c0;strokeColor=#42a5f5;strokeWidth=2;shadow=1;fontSize=12;fontColor=#ffffff;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b style=&quot;font-size:14px;&quot;&gt;🧠 LLM Backbone&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:12px;&quot;&gt;Ollama&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px; color: rgb(170, 170, 170);&quot;&gt;Local inference&lt;/font&gt;" vertex="1">
+        <mxCell id="llm-node" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1565c0;strokeColor=#42a5f5;strokeWidth=2;shadow=1;fontSize=12;fontColor=#ffffff;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b style=&quot;font-size:14px;&quot;&gt;LLM Backbone&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:12px;&quot;&gt;Ollama (local)&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px; color: rgb(170, 170, 170);&quot;&gt;Intent Router + Chatbot only&lt;/font&gt;" vertex="1">
           <mxGeometry height="76.85393258426967" width="253.33333333333337" x="443.33333333333337" y="256.1797752808988" as="geometry" />
         </mxCell>
         <mxCell id="agent1-card" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2d1b1b;strokeColor=#e74c3c;strokeWidth=2;arcSize=8;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="" vertex="1">
@@ -69,20 +69,20 @@
         <mxCell id="agent1-header" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=14;fontColor=#ffffff;align=center;verticalAlign=middle;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;font style=&quot;font-size:16px;&quot;&gt;&lt;b&gt;Orchestrator Agent&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px;color:#ffcdd2;&quot;&gt;Plans consumable orders for frac crews&lt;/font&gt;" vertex="1">
           <mxGeometry height="38.426966292134836" width="269.16666666666674" x="47.5" y="367.19101123595493" as="geometry" />
         </mxCell>
-        <mxCell id="agent1-react" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e74c3c;strokeColor=none;fontSize=10;fontColor=#ffffff;fontStyle=1;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="⚡ ReAct Pattern" vertex="1">
+        <mxCell id="agent1-react" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e74c3c;strokeColor=none;fontSize=10;fontColor=#ffffff;fontStyle=1;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="StateGraph" vertex="1">
           <mxGeometry height="18.78651685393258" width="87.08333333333333" x="134.58333333333337" y="409.88764044943815" as="geometry" />
         </mxCell>
-        <mxCell id="a1-t1" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d2020;strokeColor=#e57373;fontSize=10;fontColor=#ffcdd2;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;calculate_needs&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Pumps × consumables analysis&lt;/font&gt;" vertex="1">
+        <mxCell id="a1-t1" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d2020;strokeColor=#e57373;fontSize=10;fontColor=#ffcdd2;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;extract_crew_info&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Job duration &amp; crew ID&lt;/font&gt;" vertex="1">
           <mxGeometry height="34.15730337078651" width="134.58333333333337" x="47.5" y="439.77528089887636" as="geometry" />
         </mxCell>
-        <mxCell id="a1-t2" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d2020;strokeColor=#e57373;fontSize=10;fontColor=#ffcdd2;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;read_inventory&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;On-hand + nearby crew spares&lt;/font&gt;" vertex="1">
-          <mxGeometry height="34.15730337078651" width="130.625" x="190" y="439.77528089887636" as="geometry" />
+        <mxCell id="a1-t2" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d2020;strokeColor=#e57373;fontSize=10;fontColor=#ffcdd2;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;calc_needs + inventory&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Needs &amp; nearby crew spares&lt;/font&gt;" vertex="1">
+          <mxGeometry height="34.15730337078651" width="140" x="187" y="439.77528089887636" as="geometry" />
         </mxCell>
-        <mxCell id="a1-t3" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d2020;strokeColor=#e57373;fontSize=10;fontColor=#ffcdd2;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;plan_order&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Cost-optimized borrow vs order&lt;/font&gt;" vertex="1">
+        <mxCell id="a1-t3" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d2020;strokeColor=#e57373;fontSize=10;fontColor=#ffcdd2;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;plan_order + recommend&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Cost-optimized borrow vs order&lt;/font&gt;" vertex="1">
           <mxGeometry height="34.15730337078651" width="158.33333333333337" x="102.91666666666669" y="482.47191011235935" as="geometry" />
         </mxCell>
-        <mxCell id="a1-output" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c0392b;strokeColor=none;fontSize=11;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;→ OrderPlan&lt;/b&gt;" vertex="1">
-          <mxGeometry height="23.91011235955056" width="102.91666666666669" x="130.625" y="529.4382022471909" as="geometry" />
+        <mxCell id="a1-output" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c0392b;strokeColor=none;fontSize=11;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;OrderPlan + CostSummary&lt;/b&gt;" vertex="1">
+          <mxGeometry height="23.91011235955056" width="150" x="107" y="529.4382022471909" as="geometry" />
         </mxCell>
         <mxCell id="agent2-card" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2d2010;strokeColor=#e67e22;strokeWidth=2;arcSize=8;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="" vertex="1">
           <mxGeometry height="239.10112359550553" width="300.8333333333333" x="364.1666666666667" y="358.6516853932583" as="geometry" />
@@ -90,19 +90,19 @@
         <mxCell id="agent2-header" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=14;fontColor=#ffffff;align=center;verticalAlign=middle;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;font style=&quot;font-size:16px;&quot;&gt;&lt;b&gt;Transfer Coordinator&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px;color:#ffe0b2;&quot;&gt;Routes logistics between crews&lt;/font&gt;" vertex="1">
           <mxGeometry height="38.426966292134836" width="269.16666666666674" x="380" y="367.19101123595493" as="geometry" />
         </mxCell>
-        <mxCell id="agent2-react" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e67e22;strokeColor=none;fontSize=10;fontColor=#ffffff;fontStyle=1;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="⚡ ReAct Pattern" vertex="1">
+        <mxCell id="agent2-react" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e67e22;strokeColor=none;fontSize=10;fontColor=#ffffff;fontStyle=1;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="StateGraph" vertex="1">
           <mxGeometry height="18.78651685393258" width="87.08333333333333" x="467.08333333333337" y="409.88764044943815" as="geometry" />
         </mxCell>
         <mxCell id="a2-t1" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d2a10;strokeColor=#ffb74d;fontSize=10;fontColor=#ffe0b2;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;check_weather&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;All crew locations&lt;/font&gt;" vertex="1">
           <mxGeometry height="34.15730337078651" width="122.70833333333334" x="380" y="439.77528089887636" as="geometry" />
         </mxCell>
-        <mxCell id="a2-t2" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d2a10;strokeColor=#ffb74d;fontSize=10;fontColor=#ffe0b2;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;get_route_weather&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Per-segment conditions&lt;/font&gt;" vertex="1">
+        <mxCell id="a2-t2" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d2a10;strokeColor=#ffb74d;fontSize=10;fontColor=#ffe0b2;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;plan_route&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Optimized multi-crew route&lt;/font&gt;" vertex="1">
           <mxGeometry height="34.15730337078651" width="138.54166666666666" x="510.62500000000006" y="439.77528089887636" as="geometry" />
         </mxCell>
-        <mxCell id="a2-t3" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d2a10;strokeColor=#ffb74d;fontSize=10;fontColor=#ffe0b2;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;plan_route&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Optimized multi-crew route&lt;/font&gt;" vertex="1">
+        <mxCell id="a2-t3" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d2a10;strokeColor=#ffb74d;fontSize=10;fontColor=#ffe0b2;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;format_summary&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Human-readable transfer plan&lt;/font&gt;" vertex="1">
           <mxGeometry height="34.15730337078651" width="158.33333333333337" x="435.4166666666667" y="482.47191011235935" as="geometry" />
         </mxCell>
-        <mxCell id="a2-output" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d35400;strokeColor=none;fontSize=11;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;→ TransferPlan&lt;/b&gt;" vertex="1">
+        <mxCell id="a2-output" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d35400;strokeColor=none;fontSize=11;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;TransferPlan&lt;/b&gt;" vertex="1">
           <mxGeometry height="23.91011235955056" width="102.91666666666669" x="463.1250000000001" y="529.4382022471909" as="geometry" />
         </mxCell>
         <mxCell id="agent3-card" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2d2800;strokeColor=#f39c12;strokeWidth=2;arcSize=8;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="" vertex="1">
@@ -111,19 +111,19 @@
         <mxCell id="agent3-header" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=14;fontColor=#ffffff;align=center;verticalAlign=middle;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;font style=&quot;font-size:16px;&quot;&gt;&lt;b&gt;Cost Analyzer&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size:11px;color:#fff9c4;&quot;&gt;Borrow vs order cost optimization&lt;/font&gt;" vertex="1">
           <mxGeometry height="38.426966292134836" width="269.16666666666674" x="712.5" y="367.19101123595493" as="geometry" />
         </mxCell>
-        <mxCell id="agent3-react" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f39c12;strokeColor=none;fontSize=10;fontColor=#ffffff;fontStyle=1;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="⚡ ReAct Pattern" vertex="1">
+        <mxCell id="agent3-react" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f39c12;strokeColor=none;fontSize=10;fontColor=#ffffff;fontStyle=1;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="StateGraph" vertex="1">
           <mxGeometry height="18.78651685393258" width="87.08333333333333" x="799.5833333333334" y="409.88764044943815" as="geometry" />
         </mxCell>
-        <mxCell id="a3-t1" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d3500;strokeColor=#ffd54f;fontSize=10;fontColor=#fff9c4;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;calculate_borrow_cost&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Travel + labor costs&lt;/font&gt;" vertex="1">
+        <mxCell id="a3-t1" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d3500;strokeColor=#ffd54f;fontSize=10;fontColor=#fff9c4;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;load_config&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Cost configuration&lt;/font&gt;" vertex="1">
           <mxGeometry height="34.15730337078651" width="130.625" x="712.5" y="439.77528089887636" as="geometry" />
         </mxCell>
-        <mxCell id="a3-t2" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d3500;strokeColor=#ffd54f;fontSize=10;fontColor=#fff9c4;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;calculate_order_cost&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Parts + shipping costs&lt;/font&gt;" vertex="1">
-          <mxGeometry height="34.15730337078651" width="130.625" x="851.0416666666667" y="439.77528089887636" as="geometry" />
+        <mxCell id="a3-t2" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d3500;strokeColor=#ffd54f;fontSize=10;fontColor=#fff9c4;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;calc_borrow + order_cost&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Travel + parts + shipping&lt;/font&gt;" vertex="1">
+          <mxGeometry height="34.15730337078651" width="150" x="851.0416666666667" y="439.77528089887636" as="geometry" />
         </mxCell>
         <mxCell id="a3-t3" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3d3500;strokeColor=#ffd54f;fontSize=10;fontColor=#fff9c4;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;compare_costs&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px;color:#ccc;&quot;&gt;Recommends cheapest option&lt;/font&gt;" vertex="1">
           <mxGeometry height="34.15730337078651" width="158.33333333333337" x="767.9166666666667" y="482.47191011235935" as="geometry" />
         </mxCell>
-        <mxCell id="a3-output" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e67700;strokeColor=none;fontSize=11;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;→ CostBreakdown&lt;/b&gt;" vertex="1">
+        <mxCell id="a3-output" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e67700;strokeColor=none;fontSize=11;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;CostBreakdown&lt;/b&gt;" vertex="1">
           <mxGeometry height="23.91011235955056" width="102.91666666666669" x="795.625" y="529.4382022471909" as="geometry" />
         </mxCell>
         <mxCell id="flow-1-2" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="a1-output" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#ffffff;strokeWidth=3;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="agent2-card" value="">
@@ -148,43 +148,35 @@
         <mxCell id="flow-2-3-label" connectable="0" parent="flow-2-3" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fillColor=#1a1a2e;rounded=1;" value="&lt;font color=&quot;#ffffff&quot; style=&quot;font-size:10px;&quot;&gt;TransferPlan&lt;/font&gt;" vertex="1">
           <mxGeometry relative="1" x="-0.1" as="offset" />
         </mxCell>
-        <mxCell id="llm-to-a1" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="llm-node" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#42a5f5;strokeWidth=2;dashed=1;dashPattern=5 3;entryX=0.5;entryY=0;entryDx=0;entryDy=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="agent1-card" value="">
+        <mxCell id="llm-to-intent" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="llm-node" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#42a5f5;strokeWidth=2;dashed=1;dashPattern=5 3;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="ui-group" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="llm-to-a2" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="llm-node" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#42a5f5;strokeWidth=2;dashed=1;dashPattern=5 3;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="agent2-card" value="">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="llm-to-intent-label" connectable="0" parent="llm-to-intent" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fillColor=#1565c0;rounded=1;" value="&lt;font color=&quot;#ffffff&quot; style=&quot;font-size:10px;&quot;&gt;Intent + Chat&lt;/font&gt;" vertex="1">
+          <mxGeometry relative="1" x="0.1" as="offset" />
         </mxCell>
-        <mxCell id="llm-to-a3" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="llm-node" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#42a5f5;strokeWidth=2;dashed=1;dashPattern=5 3;entryX=0.5;entryY=0;entryDx=0;entryDy=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="agent3-card" value="">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="sg-box" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f3460;strokeColor=#533483;strokeWidth=2;arcSize=10;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="" vertex="1">
+          <mxGeometry height="128.0898876404494" width="105" x="1024" y="273.25842696629206" as="geometry" />
         </mxCell>
-        <mxCell id="react-box" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0f3460;strokeColor=#533483;strokeWidth=2;arcSize=10;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="" vertex="1">
-          <mxGeometry height="128.0898876404494" width="95" x="1029.1666666666667" y="273.25842696629206" as="geometry" />
+        <mxCell id="sg-title" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=11;fontColor=#e0e0e0;align=center;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;StateGraph&lt;/b&gt;" vertex="1">
+          <mxGeometry height="17.078651685393254" width="89" x="1032" y="277.5280898876405" as="geometry" />
         </mxCell>
-        <mxCell id="react-title" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=11;fontColor=#e0e0e0;align=center;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;b&gt;ReAct Loop&lt;/b&gt;" vertex="1">
-          <mxGeometry height="17.078651685393254" width="79.16666666666669" x="1037.0833333333333" y="277.5280898876405" as="geometry" />
-        </mxCell>
-        <mxCell id="react-reason" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7c4dff;strokeColor=none;fontSize=10;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="💭 Reason" vertex="1">
+        <mxCell id="sg-node1" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7c4dff;strokeColor=none;fontSize=10;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="Node A" vertex="1">
           <mxGeometry height="21.348314606741567" width="63.33333333333334" x="1045" y="303.1460674157303" as="geometry" />
         </mxCell>
-        <mxCell id="react-act" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00c853;strokeColor=none;fontSize=10;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="🔧 Act" vertex="1">
+        <mxCell id="sg-node2" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#00c853;strokeColor=none;fontSize=10;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="Node B" vertex="1">
           <mxGeometry height="21.348314606741567" width="63.33333333333334" x="1045" y="333.0337078651685" as="geometry" />
         </mxCell>
-        <mxCell id="react-observe" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ff6d00;strokeColor=none;fontSize=10;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="👁 Observe" vertex="1">
+        <mxCell id="sg-node3" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ff6d00;strokeColor=none;fontSize=10;fontColor=#ffffff;arcSize=30;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="END" vertex="1">
           <mxGeometry height="21.348314606741567" width="63.33333333333334" x="1045" y="362.92134831460663" as="geometry" />
         </mxCell>
-        <mxCell id="react-loop" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="react-observe" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#b388ff;strokeWidth=1.5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;curved=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="react-reason" value="">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1120.208333333333" y="374.0224719101122" />
-              <mxPoint x="1120.208333333333" y="314.247191011236" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="react-arrow1" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="react-reason" style="endArrow=classic;strokeColor=#b388ff;strokeWidth=1.5;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="react-act" value="">
+        <mxCell id="sg-arrow1" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="sg-node1" style="endArrow=classic;strokeColor=#b388ff;strokeWidth=1.5;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="sg-node2" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="react-arrow2" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="react-act" style="endArrow=classic;strokeColor=#b388ff;strokeWidth=1.5;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="react-observe" value="">
+        <mxCell id="sg-arrow2" edge="1" parent="682FzgvxKvg2nPUIRDxl-4" source="sg-node2" style="endArrow=classic;strokeColor=#b388ff;strokeWidth=1.5;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" target="sg-node3" value="">
           <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sg-typed-state" parent="682FzgvxKvg2nPUIRDxl-4" style="text;html=1;fontSize=9;fontColor=#b388ff;align=center;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="TypedDict state" vertex="1">
+          <mxGeometry height="15" width="89" x="1032" y="388" as="geometry" />
         </mxCell>
         <mxCell id="data-group" parent="682FzgvxKvg2nPUIRDxl-4" style="swimlane;startSize=25;fillColor=#eceff1;strokeColor=#b0bec5;rounded=1;arcSize=8;fontSize=11;fontColor=#546e7a;shadow=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="DATA LAYER" vertex="1">
           <mxGeometry height="102.47191011235954" width="411.66666666666674" x="31.66666666666667" y="657.5280898876402" as="geometry" />
@@ -226,7 +218,7 @@
             <mxPoint x="736.2500000000001" y="657.5280898876402" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="weather-note" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a1a2e;strokeColor=#1565c0;strokeWidth=1;dashed=1;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;font style=&quot;font-size:10px;color:#90caf9;&quot;&gt;🌦 Weather Multipliers&lt;br&gt;Clear 1.0× → Storm 2.0×&lt;br&gt;Adjusts travel costs&lt;/font&gt;" vertex="1">
+        <mxCell id="no-llm-note" parent="682FzgvxKvg2nPUIRDxl-4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a1a2e;strokeColor=#1565c0;strokeWidth=1;dashed=1;arcSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" value="&lt;font style=&quot;font-size:10px;color:#90caf9;&quot;&gt;Deterministic pipelines&lt;br&gt;No LLM calls&lt;br&gt;Pure TypedDict state&lt;/font&gt;" vertex="1">
           <mxGeometry height="42.696629213483135" width="134.58333333333337" x="1005.4166666666666" y="418.42696629213475" as="geometry" />
         </mxCell>
       </root>
