@@ -21,19 +21,21 @@ from langchain_core.tools import tool
 from schemas.cost import CostConfig, ConsumablePricing
 from schemas.order import OrderPlan
 from schemas.transfer import TransferPlan, RouteSegment
+from schemas.weather import WeatherCondition, WEATHER_MULTIPLIERS as CANONICAL_MULTIPLIERS
 from tools.cost_calculator import calculate_borrow_cost, calculate_order_cost, load_cost_config
 
 
 # Module-level context shared with the tool (same pattern as cost_analyzer.py)
 _sensitivity_context: dict = {}
 
+# Map scenario names to canonical weather multipliers
 WEATHER_MULTIPLIERS: dict[str, float] = {
-    "clear": 1.0,
-    "overcast": 1.1,
-    "rain": 1.3,
-    "heavy rain": 1.3,
-    "storm": 1.5,
-    "blizzard": 1.5,
+    "clear": CANONICAL_MULTIPLIERS[WeatherCondition.CLEAR],
+    "cloudy": CANONICAL_MULTIPLIERS[WeatherCondition.CLOUDY],
+    "rain": CANONICAL_MULTIPLIERS[WeatherCondition.RAIN],
+    "heavy_rain": CANONICAL_MULTIPLIERS[WeatherCondition.HEAVY_RAIN],
+    "storm": CANONICAL_MULTIPLIERS[WeatherCondition.STORM],
+    "fog": CANONICAL_MULTIPLIERS[WeatherCondition.FOG],
 }
 
 AVERAGE_SPEED_MPH = 30.0
@@ -55,6 +57,7 @@ def recalculate_sensitivity(
     weather_scenario: str = "current",
     distance_multiplier: float = 1.0,
     price_change_pct: float = 0.0,
+    labor_change_pct: float = 0.0,
 ) -> str:
     """
     Recalculate borrow vs order costs with modified scenario parameters.
@@ -63,11 +66,13 @@ def recalculate_sensitivity(
 
     Args:
         weather_scenario: Weather condition to simulate: "clear" (1.0x), "rain" (1.3x),
-            "storm" (1.5x), or "current" to keep existing weather unchanged.
+            "storm" (2.0x), or "current" to keep existing weather unchanged.
         distance_multiplier: Multiply all travel distances by this factor.
             E.g., 2.0 doubles distance, 0.5 halves it. Default 1.0 (no change).
         price_change_pct: Percentage change to consumable unit prices.
             E.g., 20.0 for +20% more expensive, -10.0 for 10% cheaper. Default 0.0.
+        labor_change_pct: Percentage change to labor cost per hour.
+            E.g., 300.0 for 300% more expensive (4x), -50.0 for 50% cheaper. Default 0.0.
 
     Returns:
         JSON string with original costs, modified costs, deltas, and whether
@@ -92,7 +97,7 @@ def recalculate_sensitivity(
 
     # --- Modified scenario ---
     modified_tp = _modify_transfer_plan(transfer_plan, weather_scenario, distance_multiplier)
-    modified_cc = _modify_cost_config(cost_config, price_change_pct)
+    modified_cc = _modify_cost_config(cost_config, price_change_pct, labor_change_pct)
 
     modified_borrow = calculate_borrow_cost.invoke({
         "transfer_plan": modified_tp.model_dump(),
@@ -113,6 +118,7 @@ def recalculate_sensitivity(
             "weather": weather_scenario,
             "distance_multiplier": distance_multiplier,
             "price_change_pct": price_change_pct,
+            "labor_change_pct": labor_change_pct,
         },
         "original": {
             "borrow_cost": original_borrow["total_cost"],
@@ -187,22 +193,38 @@ def _modify_transfer_plan(
     )
 
 
-def _modify_cost_config(cost_config: CostConfig, price_change_pct: float) -> CostConfig:
-    """Return a new CostConfig with consumable prices scaled by price_change_pct."""
-    if price_change_pct == 0.0:
+def _modify_cost_config(cost_config: CostConfig, price_change_pct: float, labor_change_pct: float = 0.0) -> CostConfig:
+    """Return a new CostConfig with consumable prices and/or labor cost scaled."""
+    if price_change_pct == 0.0 and labor_change_pct == 0.0:
         return cost_config
 
-    multiplier = 1.0 + (price_change_pct / 100.0)
-    new_consumables = {
-        name: ConsumablePricing(
-            unit_price=round(pricing.unit_price * multiplier, 2),
-            supplier_lead_time_days=pricing.supplier_lead_time_days,
+    # Modify consumable prices
+    if price_change_pct != 0.0:
+        price_mult = 1.0 + (price_change_pct / 100.0)
+        new_consumables = {
+            name: ConsumablePricing(
+                unit_price=round(pricing.unit_price * price_mult, 2),
+                supplier_lead_time_days=pricing.supplier_lead_time_days,
+            )
+            for name, pricing in cost_config.consumables.items()
+        }
+    else:
+        new_consumables = cost_config.consumables
+
+    # Modify labor cost
+    if labor_change_pct != 0.0:
+        from schemas.cost import TravelCostConfig
+        labor_mult = 1.0 + (labor_change_pct / 100.0)
+        new_travel = TravelCostConfig(
+            cost_per_mile=cost_config.travel.cost_per_mile,
+            cost_per_hour_labor=round(cost_config.travel.cost_per_hour_labor * labor_mult, 2),
+            average_speed_mph=cost_config.travel.average_speed_mph,
         )
-        for name, pricing in cost_config.consumables.items()
-    }
+    else:
+        new_travel = cost_config.travel
 
     return CostConfig(
-        travel=cost_config.travel,
+        travel=new_travel,
         consumables=new_consumables,
         shipping=cost_config.shipping,
     )

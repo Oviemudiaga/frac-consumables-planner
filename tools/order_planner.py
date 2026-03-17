@@ -100,26 +100,31 @@ def plan_order(
 def _calculate_borrow_cost_per_unit(
     distance: float,
     quantity: int,
-    weather_multiplier: float,
+    source_weather_multiplier: float,
     cost_config: CostConfig,
+    crew_a_weather_multiplier: float = 1.0,
 ) -> float:
     """
     Calculate the cost per unit of borrowing from a specific crew.
 
+    Uses per-leg weather to match the route planner's calculation:
+    outbound uses source crew weather, return uses Crew A weather.
+
     Args:
         distance: One-way distance to crew in miles
         quantity: Number of units available to borrow
-        weather_multiplier: Weather time multiplier for this route
+        source_weather_multiplier: Weather time multiplier at source crew
         cost_config: Cost configuration
+        crew_a_weather_multiplier: Weather time multiplier at Crew A (for return leg)
 
     Returns:
         Cost per unit in dollars
     """
-    round_trip = distance * 2
-    travel_cost = round_trip * cost_config.travel.cost_per_mile
-    travel_time = round_trip / cost_config.travel.average_speed_mph
-    labor_cost = travel_time * weather_multiplier * cost_config.travel.cost_per_hour_labor
-    total_trip_cost = travel_cost + labor_cost
+    travel_cost = distance * 2 * cost_config.travel.cost_per_mile
+    one_way_time = distance / cost_config.travel.average_speed_mph
+    outbound_labor = one_way_time * source_weather_multiplier * cost_config.travel.cost_per_hour_labor
+    return_labor = one_way_time * crew_a_weather_multiplier * cost_config.travel.cost_per_hour_labor
+    total_trip_cost = travel_cost + outbound_labor + return_labor
     return total_trip_cost / quantity if quantity > 0 else float("inf")
 
 
@@ -199,11 +204,13 @@ def _apply_cost_optimized_logic(
             continue
 
         weather_mult = _get_crew_weather_multiplier(weather_data, crew["crew_id"])
+        crew_a_weather_mult = _get_crew_weather_multiplier(weather_data, "A")
         borrow_cost = _calculate_borrow_cost_per_unit(
             distance=crew["distance"],
             quantity=min(available, remaining),
-            weather_multiplier=weather_mult,
+            source_weather_multiplier=weather_mult,
             cost_config=cost_config,
+            crew_a_weather_multiplier=crew_a_weather_mult,
         )
 
         crew_options.append({
@@ -266,6 +273,15 @@ def compute_cost_summary(
     total_estimated_cost = 0.0
     total_if_all_ordered = 0.0
 
+    # Include Crew A's weather for return leg cost breakdowns
+    for crew_weather in weather_data.get("crews", []):
+        if crew_weather["crew_id"] == order_plan.crew_id:
+            weather_info[order_plan.crew_id] = {
+                "multiplier": crew_weather["time_multiplier"],
+                "condition": crew_weather["condition"],
+            }
+            break
+
     for item in order_plan.items:
         shortfall = max(0, item.total_needed - item.on_hand)
         if shortfall <= 0:
@@ -287,11 +303,13 @@ def compute_cost_summary(
             if available <= 0:
                 continue
             weather_mult = _get_crew_weather_multiplier(weather_data, crew["crew_id"])
+            crew_a_weather_mult = _get_crew_weather_multiplier(weather_data, order_plan.crew_id)
             borrow_cost = _calculate_borrow_cost_per_unit(
                 distance=crew["distance"],
                 quantity=min(available, shortfall),
-                weather_multiplier=weather_mult,
+                source_weather_multiplier=weather_mult,
                 cost_config=cost_config,
+                crew_a_weather_multiplier=crew_a_weather_mult,
             )
             if best_borrow_cost is None or borrow_cost < best_borrow_cost:
                 best_borrow_cost = borrow_cost
@@ -299,14 +317,18 @@ def compute_cost_summary(
         # Determine action and costs
         if item.borrow_sources:
             # Calculate actual borrow cost for the quantities borrowed
+            # Uses per-leg weather (outbound = source crew weather, return = Crew A weather)
+            # to match the route planner's calculation
+            crew_a_weather_mult = _get_crew_weather_multiplier(weather_data, order_plan.crew_id)
             borrow_total = 0.0
             for source in item.borrow_sources:
-                weather_mult = _get_crew_weather_multiplier(weather_data, source.crew_id)
-                trip_cost = (
-                    source.distance * 2 * cost_config.travel.cost_per_mile
-                    + (source.distance * 2 / cost_config.travel.average_speed_mph)
-                    * weather_mult * cost_config.travel.cost_per_hour_labor
-                )
+                source_weather_mult = _get_crew_weather_multiplier(weather_data, source.crew_id)
+                one_way = source.distance
+                speed = cost_config.travel.average_speed_mph
+                travel_cost = one_way * 2 * cost_config.travel.cost_per_mile
+                outbound_labor = (one_way / speed) * source_weather_mult * cost_config.travel.cost_per_hour_labor
+                return_labor = (one_way / speed) * crew_a_weather_mult * cost_config.travel.cost_per_hour_labor
+                trip_cost = travel_cost + outbound_labor + return_labor
                 borrow_total += trip_cost
 
                 # Collect weather info for involved crews

@@ -31,7 +31,7 @@ from schemas.cost import CostConfig
 from schemas.chatbot_response import ChatbotResponse, OrderRecommendation
 from tools.needs_calculator import calculate_needs
 from tools.inventory_reader import read_inventory
-from tools.order_planner import plan_order
+from tools.order_planner import plan_order, compute_cost_summary
 from agent.orchestrator import _generate_recommendation
 from agent.transfer_coordinator import _run_deterministic_transfer
 from agent.cost_analyzer import _run_deterministic_cost_analysis
@@ -402,18 +402,19 @@ def generate_structured_chat_response(
 def run_order_pipeline(
     crew_data: CrewData,
     weather_seed: int = DEFAULT_WEATHER_SEED,
-) -> tuple[OrderPlan | None, str]:
+) -> tuple[OrderPlan | None, str, dict | None]:
     """
     Run the cost-optimized order pipeline and return formatted output.
 
     Uses weather and cost data to make cost-optimal borrow vs order decisions.
+    Also computes cost_summary so chatbot responses match the UI exactly.
 
     Args:
         crew_data: Current crew data
         weather_seed: Seed for reproducible weather data
 
     Returns:
-        Tuple of (OrderPlan, formatted_response_string)
+        Tuple of (OrderPlan, formatted_response_string, cost_summary)
     """
     crew_a = None
     for crew in crew_data.crews:
@@ -422,7 +423,7 @@ def run_order_pipeline(
             break
 
     if crew_a is None:
-        return None, "Error: Crew A not found in data."
+        return None, "Error: Crew A not found in data.", None
 
     needs = calculate_needs(crew_data, "A")
     inventory = read_inventory(crew_data)
@@ -440,7 +441,8 @@ def run_order_pipeline(
     )
 
     formatted = _generate_recommendation(order_plan, inventory["nearby_crews"])
-    return order_plan, formatted
+    cost_summary = compute_cost_summary(order_plan, inventory["nearby_crews"], weather_data, cost_config)
+    return order_plan, formatted, cost_summary
 
 
 def run_cost_pipeline(
@@ -461,7 +463,7 @@ def run_cost_pipeline(
     """
     # Step 1: Ensure we have an order plan
     if order_plan is None:
-        order_plan, _ = run_order_pipeline(crew_data, weather_seed)
+        order_plan, _, _ = run_order_pipeline(crew_data, weather_seed)
         if order_plan is None:
             return "Error: Could not generate order plan."
 
@@ -534,10 +536,16 @@ def _build_order_analysis_prompt(
             order_cpu = data.get("order_cost_per_unit")
             savings_cpu = data.get("savings_per_unit")
             lines.append(f"\n### {name} → {action.upper()}")
+            borrow_total = data.get("borrow_total")
+            order_total = data.get("order_total")
             if borrow_cpu is not None:
                 lines.append(f"- Borrow cost/unit: ${borrow_cpu:.2f}")
+            if borrow_total is not None:
+                lines.append(f"- Total borrow cost: ${borrow_total:.2f} (includes travel + weather-adjusted labor)")
             if order_cpu is not None:
                 lines.append(f"- Order cost/unit: ${order_cpu:.2f}")
+            if order_total is not None and order_total > 0:
+                lines.append(f"- Total order cost: ${order_total:.2f}")
             if savings_cpu is not None and savings_cpu != 0:
                 lines.append(f"- Savings/unit by choosing {action}: ${abs(savings_cpu):.2f}")
 
@@ -566,8 +574,19 @@ def _build_order_analysis_prompt(
 WHAT_IF_PHRASES = [
     "what if", "if weather", "if it rains", "if it storms", "if storm",
     "if distance", "if price", "if parts", "if cost", "if conditions",
+    "if labor", "if labour",
     "what would happen", "would it change", "would the decision",
     "suppose", "assuming", "sensitivity", "scenario",
+]
+
+COST_QUESTION_PHRASES = [
+    "what cost", "how much", "at what cost", "what are the cost",
+    "total cost", "cost breakdown", "price breakdown",
+    "how expensive", "what does it cost", "what will it cost",
+    "at what price", "what price", "costs are",
+    "the cost", "the price", "cost of", "price of",
+    "calculation breakdown", "show me the calculation",
+    "show me the cost", "break down the cost", "cost detail",
 ]
 
 
@@ -576,13 +595,99 @@ def _is_what_if_question(message: str) -> bool:
     return any(phrase in lower for phrase in WHAT_IF_PHRASES)
 
 
+def _is_cost_question(message: str) -> bool:
+    lower = message.lower()
+    return any(phrase in lower for phrase in COST_QUESTION_PHRASES)
+
+
+def _format_cost_summary(cost_summary: dict, order_plan: OrderPlan) -> str:
+    """Format cost summary deterministically without LLM involvement."""
+    cost_config = load_cost_config()
+    weather = cost_summary.get("weather", {})
+
+    lines = [f"**Cost Breakdown for Crew {order_plan.crew_id}** ({order_plan.job_duration_hours}-hour job)\n"]
+
+    for item in order_plan.items:
+        name = item.consumable_name.replace("_", " ").title()
+        shortfall = max(0, item.total_needed - item.on_hand)
+        item_cost = cost_summary.get("items", {}).get(item.consumable_name, {})
+
+        if shortfall == 0:
+            lines.append(f"- **{name}**: No action needed (covered by on-hand spares)")
+            continue
+
+        action = item_cost.get("action", "")
+        borrow_cpu = item_cost.get("borrow_cost_per_unit")
+        order_cpu = item_cost.get("order_cost_per_unit")
+        borrow_total = item_cost.get("borrow_total")
+        order_total = item_cost.get("order_total")
+
+        lines.append(f"- **{name}**: Need {item.total_needed}, have {item.on_hand} on hand (shortfall: {shortfall})")
+        if action in ("borrow", "mixed") and item.borrow_sources:
+            for src in item.borrow_sources:
+                src_weather = weather.get(src.crew_id, {})
+                src_mult = src_weather.get("multiplier", 1.0)
+                src_cond = src_weather.get("condition", "clear")
+                # Get Crew A weather
+                crew_a_weather = weather.get(order_plan.crew_id, {})
+                crew_a_mult = crew_a_weather.get("multiplier", 1.0)
+                speed = cost_config.travel.average_speed_mph
+
+                round_trip = src.distance * 2
+                travel_cost = round_trip * cost_config.travel.cost_per_mile
+                outbound_labor = (src.distance / speed) * src_mult * cost_config.travel.cost_per_hour_labor
+                return_labor = (src.distance / speed) * crew_a_mult * cost_config.travel.cost_per_hour_labor
+                trip_total = travel_cost + outbound_labor + return_labor
+
+                lines.append(f"  - **Borrow {src.quantity} from Crew {src.crew_id}** ({src.distance} mi)")
+                lines.append(f"    - Travel: {round_trip} mi x ${cost_config.travel.cost_per_mile}/mi = ${travel_cost:.2f}")
+                lines.append(f"    - Outbound labor: ({src.distance}/{speed} hr) x {src_mult}x ({src_cond}) x ${cost_config.travel.cost_per_hour_labor}/hr = ${outbound_labor:.2f}")
+                if crew_a_mult != 1.0:
+                    crew_a_cond = crew_a_weather.get("condition", "clear")
+                    lines.append(f"    - Return labor: ({src.distance}/{speed} hr) x {crew_a_mult}x ({crew_a_cond}) x ${cost_config.travel.cost_per_hour_labor}/hr = ${return_labor:.2f}")
+                else:
+                    lines.append(f"    - Return labor: ({src.distance}/{speed} hr) x ${cost_config.travel.cost_per_hour_labor}/hr = ${return_labor:.2f}")
+                lines.append(f"    - **Trip total: ${trip_total:.2f}** (${trip_total / src.quantity:.2f}/unit for {src.quantity} units)")
+            if borrow_total is not None:
+                lines.append(f"  - **Total borrow cost: ${borrow_total:.2f}**")
+        if action in ("order", "mixed"):
+            if order_cpu is not None:
+                lines.append(f"  - Order cost/unit: ${order_cpu:.2f}")
+            if order_total is not None and order_total > 0:
+                lines.append(f"  - Total order cost: ${order_total:.2f}")
+
+    total = cost_summary.get("total_estimated_cost")
+    total_if_ordered = cost_summary.get("total_if_all_ordered")
+    total_savings = cost_summary.get("total_savings")
+
+    if total is not None:
+        lines.append(f"\n**Recommended plan total: ${total:.2f}**")
+        lines.append(f"**If everything ordered instead: ${total_if_ordered:.2f}**")
+        lines.append(f"**Savings: ${total_savings:.2f}**")
+
+    # Include weather info if available
+    weather = cost_summary.get("weather", {})
+    if weather:
+        lines.append("\n**Weather at source crews:**")
+        for crew_id, w in weather.items():
+            lines.append(f"- Crew {crew_id}: {w.get('condition', 'unknown')} ({w.get('multiplier', 1.0)}x travel time)")
+
+    return "\n".join(lines)
+
+
 def _extract_sensitivity_params(user_message: str, llm) -> dict:
     """Ask the LLM to extract scenario params as JSON only — no tool-calling needed."""
     prompt = (
         "Extract scenario parameters from this what-if question. "
         "Return ONLY a JSON object — no explanation, no markdown, no text before or after:\n"
         '{"weather_scenario": "current"|"clear"|"rain"|"storm", '
-        '"distance_multiplier": <float>, "price_change_pct": <float>}\n\n'
+        '"distance_multiplier": <float>, "price_change_pct": <float>, '
+        '"labor_change_pct": <float>}\n\n'
+        "Rules:\n"
+        '- price_change_pct: changes consumable UNIT PRICES (parts cost)\n'
+        '- labor_change_pct: changes LABOR COST PER HOUR (affects borrow/travel cost)\n'
+        '- "labor cost 300% more" means labor_change_pct: 300.0\n'
+        '- "parts 20% cheaper" means price_change_pct: -20.0\n\n'
         f'Question: "{user_message}"'
     )
     content = llm.invoke([HumanMessage(content=prompt)]).content
@@ -592,7 +697,7 @@ def _extract_sensitivity_params(user_message: str, llm) -> dict:
             return json.loads(match.group())
         except json.JSONDecodeError:
             pass
-    return {"weather_scenario": "current", "distance_multiplier": 1.0, "price_change_pct": 0.0}
+    return {"weather_scenario": "current", "distance_multiplier": 1.0, "price_change_pct": 0.0, "labor_change_pct": 0.0}
 
 
 def _run_what_if_pipeline(
@@ -652,6 +757,10 @@ def run_explain_pipeline(
     Returns:
         Assistant response string
     """
+    # Cost questions get deterministic output (no LLM) to avoid hallucinated numbers
+    if _is_cost_question(user_message) and cost_summary:
+        return _format_cost_summary(cost_summary, order_plan)
+
     # Build base transfer plan for the sensitivity tool context
     transfer_result = _run_deterministic_transfer(order_plan, crew_data, weather_seed)
     transfer_plan: TransferPlan = transfer_result["transfer_plan"]
@@ -724,13 +833,25 @@ def handle_chat_message(
     """
     intent = classify_intent(user_message, model=selected_model, context_mode=context_mode)
 
+    # In job planning context, intercept cost questions for deterministic output
+    # This prevents the LLM from making up cost numbers
+    if context_mode == "job_planning" and _is_cost_question(user_message) and order_plan is not None and cost_summary:
+        response = _generate_recommendation(order_plan, read_inventory(crew_data)["nearby_crews"])
+        response += "\n\n---\n\n" + _format_cost_summary(cost_summary, order_plan)
+        return response, ChatIntent.COST
+
     # In job planning context, EXPLAIN and COST both go to the LLM analysis pipeline
     if context_mode == "job_planning" and intent in (ChatIntent.EXPLAIN, ChatIntent.COST):
         if order_plan is None:
-            # Generate order plan first so the pipeline has something to explain
-            order_plan, _ = run_order_pipeline(crew_data)
+            # Generate order plan AND cost_summary (same as clicking "Generate Order Plan")
+            order_plan, _, cost_summary = run_order_pipeline(crew_data)
             if order_plan is None:
                 return "Could not generate an order plan to analyze. Please try generating one first.", intent
+            # Re-check cost intercept now that we have cost_summary
+            if _is_cost_question(user_message) and cost_summary:
+                response = _generate_recommendation(order_plan, read_inventory(crew_data)["nearby_crews"])
+                response += "\n\n---\n\n" + _format_cost_summary(cost_summary, order_plan)
+                return response, ChatIntent.COST
         response = run_explain_pipeline(
             crew_data=crew_data,
             order_plan=order_plan,
@@ -746,7 +867,7 @@ def handle_chat_message(
             inventory = read_inventory(crew_data)
             response = _generate_recommendation(order_plan, inventory["nearby_crews"])
         else:
-            _, response = run_order_pipeline(crew_data)
+            _, response, _ = run_order_pipeline(crew_data)
         return response, intent
 
     elif intent == ChatIntent.COST:
